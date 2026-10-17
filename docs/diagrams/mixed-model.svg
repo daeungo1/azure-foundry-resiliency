@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="580" viewBox="0 0 1200 580" role="img" aria-labelledby="title desc">
+  <title id="title">Case B explicit mixed-model fallback after same-model candidates</title>
+  <desc id="desc">All approved regional candidates for the requested model are considered first. A configured allowlist and per-request opt-in are both required before trying other model groups. Results expose the selected model and degraded flag. Compatibility and quality approval are mandatory. After the first text delta there is no replay.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0 0L8 3L0 6Z" fill="#365977"/></marker>
+    <style>text{font-family:Segoe UI,Arial,sans-serif;fill:#183047}.h{font-size:25px;font-weight:700}.l{font-size:17px;font-weight:600}.n{font-size:14px}.a{fill:none;stroke:#365977;stroke-width:2;marker-end:url(#arrow)}</style>
+  </defs>
+  <rect width="1200" height="580" fill="#f4f8fc"/>
+  <text x="30" y="42" class="h">Case B | model fallback must be explicit and observable</text>
+  <text x="30" y="74" class="n">Illustrative candidates, not a quality ranking. Each target requires workload-specific approval.</text>
+  <rect x="30" y="148" width="180" height="100" rx="12" fill="#fff" stroke="#7aa2bf"/>
+  <text x="120" y="188" text-anchor="middle" class="l">Agent request</text>
+  <text x="120" y="216" text-anchor="middle" class="n">requested model recorded</text>
+  <path d="M210 198H264" class="a"/>
+  <rect x="270" y="120" width="300" height="170" rx="12" fill="#e5f0ff" stroke="#4384b9"/>
+  <text x="420" y="158" text-anchor="middle" class="l">Requested model group</text>
+  <text x="420" y="188" text-anchor="middle" class="n">gpt-6.1-sol, pinned version</text>
+  <text x="420" y="218" text-anchor="middle" class="n">KR / UK / US / CA candidates</text>
+  <text x="420" y="252" text-anchor="middle" class="n">All unavailable within time budget</text>
+  <path d="M570 198H644" class="a"/>
+  <rect x="650" y="148" width="195" height="100" rx="12" fill="#fff0d8" stroke="#c9994c"/>
+  <text x="747" y="182" text-anchor="middle" class="l">Approval gate</text>
+  <text x="747" y="207" text-anchor="middle" class="n">allowlist AND request opt-in</text>
+  <text x="747" y="230" text-anchor="middle" class="n">capabilities + quality</text>
+  <path d="M845 198H904" class="a"/>
+  <rect x="910" y="120" width="260" height="170" rx="12" fill="#e3f3ed" stroke="#4d957a"/>
+  <text x="1040" y="155" text-anchor="middle" class="l">Approved model groups</text>
+  <text x="1040" y="185" text-anchor="middle" class="n">gpt-6-luna</text>
+  <text x="1040" y="214" text-anchor="middle" class="n">gpt-5.6-terra</text>
+  <text x="1040" y="243" text-anchor="middle" class="n">gpt-5.6-luna</text>
+  <text x="1040" y="271" text-anchor="middle" class="n">each has regional candidates</text>
+  <path d="M747 248V327" class="a"/>
+  <text x="770" y="305" class="n">no approval / no time left</text>
+  <rect x="620" y="333" width="300" height="48" rx="10" fill="#fde9e9" stroke="#bd7777"/>
+  <text x="770" y="363" text-anchor="middle" class="l">Explicit bounded failure</text>
+  <rect x="30" y="418" width="1140" height="109" rx="12" fill="#fff" stroke="#7aa2bf"/>
+  <text x="55" y="451" class="l">Response: requested_model + selected_model + selected_version + degraded + attempts</text>
+  <text x="55" y="480" class="n">FIRST NON-EMPTY TEXT DELTA: stream committed. Disconnects are surfaced; no automatic region/model replay.</text>
+  <text x="55" y="506" class="n">No silent input truncation, dropped parameters, hidden safety refusal or transparent Agent tool replay.</text>
+  <text x="30" y="558" class="n">Same-model-only remains the default. Model availability, data governance and task quality must be verified separately.</text>
+</svg>

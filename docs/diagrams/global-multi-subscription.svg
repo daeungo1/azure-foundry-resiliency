@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="850" viewBox="0 0 1280 850" role="img" aria-labelledby="title desc">
+  <title id="title">Future multi-subscription quota architecture, not currently deployed</title>
+  <desc id="desc">The same Entra tenant has subscriptions A and B with separately approved model quota. Regional Agents route to nearby same-model resources across either subscription before optional approved model fallback. Managed identity receives OpenAI User on each resource. Shared global inference capacity and tenant-wide usage-tier latency remain correlated. Multi-subscription execution is deferred.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0 0L8 3L0 6Z" fill="#365977"/></marker>
+    <style>
+      text{font-family:Segoe UI,Arial,sans-serif;fill:#183047} .heading{font-size:25px;font-weight:700}
+      .label{font-size:17px;font-weight:600} .note{font-size:14px}
+      .box{fill:#fff;stroke:#7aa2bf;stroke-width:1.5;rx:12}
+      .line{fill:none;stroke:#365977;stroke-width:2;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="1280" height="850" fill="#f4f8fc"/>
+  <text x="40" y="42" class="heading">FUTURE REFERENCE | multiple subscriptions in the same Entra tenant</text>
+  <text x="40" y="70" class="note">Deferred: no extra subscription provisioning, permission requests or live multi-subscription tests in the current scope.</text>
+  <rect x="40" y="110" width="300" height="82" class="box"/>
+  <text x="190" y="142" text-anchor="middle" class="label">KR / UK / US / CA / future EU</text>
+  <text x="190" y="168" text-anchor="middle" class="note">Nearby edge + regional Agents</text>
+  <path d="M340 151H414" class="line"/>
+  <rect x="420" y="110" width="820" height="82" rx="12" fill="#d8eee8" stroke="#518c79"/>
+  <text x="830" y="142" text-anchor="middle" class="label">Model-aware router / regional gateway</text>
+  <text x="830" y="168" text-anchor="middle" class="note">Same-model nearby candidates, then approved model fallback; no replay after first text</text>
+  <path d="M830 192V239H320V280M830 239H960V280" class="line"/>
+  <text x="40" y="251" class="note">Managed Identity: Cognitive Services OpenAI User on each target resource</text>
+  <rect x="40" y="285" width="560" height="302" rx="15" fill="#e5f0ff" stroke="#4384b9" stroke-width="2"/>
+  <rect x="680" y="285" width="560" height="302" rx="15" fill="#e3f3ed" stroke="#4d957a" stroke-width="2"/>
+  <text x="65" y="319" class="label">Subscription A | approved quota A</text>
+  <text x="705" y="319" class="label">Subscription B | approved quota B</text>
+  <text x="65" y="347" class="note">Global Standard, pinned model versions</text>
+  <text x="705" y="347" class="note">Same models/versions; independent quota approval</text>
+  <g text-anchor="middle">
+    <rect x="65" y="370" width="245" height="58" class="box"/><text x="187" y="405" class="label">KR / UK endpoints</text>
+    <rect x="330" y="370" width="245" height="58" class="box"/><text x="452" y="405" class="label">US / CA endpoints</text>
+    <rect x="705" y="370" width="245" height="58" class="box"/><text x="827" y="405" class="label">KR / UK endpoints</text>
+    <rect x="970" y="370" width="245" height="58" class="box"/><text x="1092" y="405" class="label">US / CA endpoints</text>
+  </g>
+  <text x="65" y="465" class="note">Example consolidated pool key:</text>
+  <text x="65" y="490" class="note">subscription A + model + version + GlobalStandard</text>
+  <text x="705" y="465" class="note">Example consolidated pool key:</text>
+  <text x="705" y="490" class="note">subscription B + model + version + GlobalStandard</text>
+  <text x="65" y="535" class="note">Verify actual quota Scope and available capacity.</text>
+  <text x="705" y="535" class="note">Contributor alone is not Entra inference permission.</text>
+  <text x="65" y="563" class="note">Regional Scope still applies to non-onboarded models.</text>
+  <text x="705" y="563" class="note">Role assignment requires a target-scope administrator.</text>
+  <path d="M320 587V630H640V664M960 587V630H640" class="line"/>
+  <rect x="180" y="668" width="920" height="88" rx="14" fill="#fff0d8" stroke="#c9994c" stroke-width="2"/>
+  <text x="640" y="702" text-anchor="middle" class="label">Shared Microsoft-managed global inference capacity</text>
+  <text x="640" y="730" text-anchor="middle" class="note">More approved quota is not capacity isolation, reserved throughput or guaranteed lower TTFT.</text>
+  <text x="40" y="798" class="note">Usage-tier latency guidance may aggregate all subscriptions and regions per model within a tenant.</text>
+  <text x="40" y="824" class="note">Keep per-subscription cost controls, fairness, audit, data-governance rules and bounded retry budgets.</text>
+</svg>

@@ -1,0 +1,117 @@
+{
+  "verified_on": "2026-10-16",
+  "scope": "single_subscription_reference_implementation",
+  "environment": {
+    "os": "Windows",
+    "python": "3.12.4",
+    "openai": "2.54.0",
+    "azure_identity": "1.26.0",
+    "pydantic": "2.14.0",
+    "httpx": "0.28.1",
+    "pytest": "9.1.1",
+    "ruff": "0.16.10",
+    "mypy": "1.20.2",
+    "bicep": "0.48.1"
+  },
+  "checks": [
+    {
+      "name": "python_tests",
+      "command": ".\\.venv\\Scripts\\python.exe -m pytest tests -q --tb=short --junitxml=artifacts\\pytest.xml",
+      "status": "passed",
+      "tests": 60,
+      "failures": 0
+    },
+    {
+      "name": "ruff",
+      "command": ".\\.venv\\Scripts\\ruff.exe check src tests",
+      "status": "passed"
+    },
+    {
+      "name": "format",
+      "command": ".\\.venv\\Scripts\\ruff.exe format --check src tests",
+      "status": "passed"
+    },
+    {
+      "name": "strict_types",
+      "command": ".\\.venv\\Scripts\\mypy.exe src",
+      "status": "passed",
+      "source_files": 10
+    },
+    {
+      "name": "wheel_build",
+      "command": ".\\.venv\\Scripts\\python.exe -m pip wheel . --no-deps --no-build-isolation --wheel-dir dist",
+      "status": "passed",
+      "artifact": "dist/foundry_resiliency-0.1.0-py3-none-any.whl"
+    },
+    {
+      "name": "bicep_model_resources",
+      "command": "bicep-win-x64.exe build infra\\main.bicep --outfile artifacts\\main.json",
+      "status": "passed",
+      "compiler": "0.48.1",
+      "warnings": 0,
+      "azure_deployment_performed": false
+    },
+    {
+      "name": "bicep_parameters",
+      "command": "bicep-win-x64.exe build-params infra\\main.bicepparam --outfile artifacts\\main.parameters.json",
+      "status": "passed",
+      "compiler": "0.48.1",
+      "warnings": 0
+    },
+    {
+      "name": "svg_render",
+      "method": "Chromium browser render, SVG XML tests and getBBox text-bound checks",
+      "status": "passed",
+      "files": 4,
+      "out_of_viewbox_labels": 0,
+      "tooling_note": "VS Code preload warnings occurred on standalone SVG pages; direct DOM rendering and geometry evaluation succeeded."
+    },
+    {
+      "name": "persisted_configs",
+      "status": "passed",
+      "files": 2,
+      "backends_each": 16,
+      "regions": ["koreacentral", "uksouth", "eastus2", "canadaeast"],
+      "models": ["gpt-6.1-sol", "gpt-6-luna", "gpt-5.6-terra", "gpt-5.6-luna"]
+    },
+    {
+      "name": "live_inference_confirmation_guard",
+      "status": "passed",
+      "observed_exit_code_without_confirm_paid": 2,
+      "azure_calls": 0
+    }
+  ],
+  "chaos": {
+    "http": {
+      "command": ".\\.venv\\Scripts\\python.exe -m foundry_resiliency simulate --count 3 --output artifacts\\simulation.json",
+      "status": "passed",
+      "scenarios": 64,
+      "logical_requests": 192,
+      "successes": 124,
+      "expected_failures": 68,
+      "report": "../artifacts/simulation.json"
+    },
+    "sse": {
+      "command": ".\\.venv\\Scripts\\python.exe -m foundry_resiliency simulate --stream --count 3 --output artifacts\\streaming.json",
+      "status": "passed",
+      "scenarios": 64,
+      "logical_requests": 192,
+      "successes": 124,
+      "expected_failures": 68,
+      "report": "../artifacts/streaming.json"
+    },
+    "interpretation": "Expected bounded failures and terminal failures are acceptance criteria, not successful model responses.",
+    "live_azure_calls": 0,
+    "mock_ttft_is_not_cloud_latency_evidence": true
+  },
+  "not_run": {
+    "live_azure_deployment": "No paid provisioning was authorized or performed.",
+    "live_arm_preflight": "No concrete existing customer test endpoints and resource IDs were supplied.",
+    "live_model_inference": "Explicitly confirmed, configured test deployments are required.",
+    "global_agent_ttft_and_load": "Requires probes in KR, UK, US, CA and future EU with real Agent paths.",
+    "multi_subscription_execution": "Deferred by user; SVG and configuration generation are reference only.",
+    "github_actions": "Workflow provided but not published or executed remotely.",
+    "python_3_11_runtime": "CI matrix includes 3.11; local runtime verification used Python 3.12.",
+    "default_public_index_uv_sync": "External package-host TLS handshake failed; project dependencies were restored using the machine-approved configured package feed without disabling TLS verification."
+  }
+}

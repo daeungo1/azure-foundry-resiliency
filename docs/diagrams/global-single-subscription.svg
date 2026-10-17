@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="920" viewBox="0 0 1280 920" role="img" aria-labelledby="title desc">
+  <title id="title">Current single-subscription global Agent architecture</title>
+  <desc id="desc">KR, UK, US and CA users reach regional Agents through a global edge. A model-aware Python router selects regional OpenAI endpoints in one subscription. Onboarded Global Standard models share quota across regions. EU is future expansion. Global inference capacity is Microsoft managed, not isolated per endpoint.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0 0L8 3L0 6Z" fill="#365977"/></marker>
+    <style>
+      text{font-family:Segoe UI,Arial,sans-serif;fill:#183047} .heading{font-size:26px;font-weight:700}
+      .label{font-size:17px;font-weight:600} .note{font-size:14px} .small{font-size:13px}
+      .box{fill:#fff;stroke:#79a4c5;stroke-width:1.5;rx:12}
+      .future{fill:#f8fafc;stroke:#94a3b8;stroke-width:1.5;stroke-dasharray:6 4;rx:12}
+      .line{fill:none;stroke:#365977;stroke-width:2;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="1280" height="920" fill="#f4f8fc"/>
+  <text x="40" y="42" class="heading">Global Agent resiliency | CURRENT: one subscription</text>
+  <text x="40" y="71" class="note">Global Standard PayGo only. Regional endpoints do not guarantee regional inference or independent capacity.</text>
+  <g text-anchor="middle">
+    <rect x="40" y="103" width="200" height="58" class="box"/><text x="140" y="138" class="label">KR users</text>
+    <rect x="280" y="103" width="200" height="58" class="box"/><text x="380" y="138" class="label">UK users</text>
+    <rect x="520" y="103" width="200" height="58" class="box"/><text x="620" y="138" class="label">US users</text>
+    <rect x="760" y="103" width="200" height="58" class="box"/><text x="860" y="138" class="label">CA users</text>
+    <rect x="1000" y="103" width="240" height="58" class="future"/><text x="1120" y="138" class="label">EU users | future</text>
+  </g>
+  <path d="M140 161V185H640V207M380 161V185M620 161V185M860 161V185H640M1120 161V185H640" class="line"/>
+  <rect x="310" y="210" width="660" height="65" rx="12" fill="#dceeff" stroke="#3e85bd"/>
+  <text x="640" y="237" text-anchor="middle" class="label">Global edge / Front Door: nearby healthy Agent ingress</text>
+  <text x="640" y="259" text-anchor="middle" class="note">Reference hosting layer, not deployed by this lab</text>
+  <path d="M640 275V314" class="line"/>
+  <rect x="40" y="318" width="1200" height="130" rx="14" fill="#eaf3fc" stroke="#8cb0ce"/>
+  <text x="60" y="344" class="label">Regional Agent + gateway: authentication, bounded queue, stream without buffering</text>
+  <g text-anchor="middle">
+    <rect x="60" y="365" width="215" height="60" class="box"/><text x="167" y="400" class="label">KR Agent</text>
+    <rect x="300" y="365" width="215" height="60" class="box"/><text x="407" y="400" class="label">UK Agent</text>
+    <rect x="540" y="365" width="215" height="60" class="box"/><text x="647" y="400" class="label">US Agent</text>
+    <rect x="780" y="365" width="215" height="60" class="box"/><text x="887" y="400" class="label">CA Agent</text>
+    <rect x="1020" y="365" width="200" height="60" class="future"/><text x="1120" y="400" class="label">EU | future</text>
+  </g>
+  <path d="M640 448V488" class="line"/>
+  <rect x="190" y="492" width="900" height="69" rx="12" fill="#d8eee8" stroke="#518c79"/>
+  <text x="640" y="520" text-anchor="middle" class="label">Python router: same model/version first; approved model fallback only</text>
+  <text x="640" y="544" text-anchor="middle" class="note">Market preference + headroom + circuit + total attempt/deadline budget + first-text boundary</text>
+  <path d="M640 561V603" class="line"/>
+  <rect x="40" y="607" width="1200" height="157" rx="14" fill="#fff" stroke="#4589ba" stroke-width="2"/>
+  <text x="60" y="634" class="label">Subscription A | each account hosts the four pinned target models</text>
+  <g text-anchor="middle">
+    <rect x="60" y="652" width="215" height="57" class="box"/><text x="167" y="686" class="label">Korea Central</text>
+    <rect x="300" y="652" width="215" height="57" class="box"/><text x="407" y="686" class="label">UK South</text>
+    <rect x="540" y="652" width="215" height="57" class="box"/><text x="647" y="686" class="label">East US 2</text>
+    <rect x="780" y="652" width="215" height="57" class="box"/><text x="887" y="686" class="label">Canada East</text>
+    <rect x="1020" y="652" width="200" height="57" class="future"/><text x="1120" y="686" class="label">Sweden | future</text>
+  </g>
+  <text x="60" y="740" class="note">If quota Scope = Global: one pool per subscription + model + version, shared across these regions.</text>
+  <path d="M640 764V800" class="line"/>
+  <rect x="160" y="804" width="960" height="64" rx="12" fill="#fff2dc" stroke="#c9994c"/>
+  <text x="640" y="831" text-anchor="middle" class="label">Microsoft-managed global inference capacity</text>
+  <text x="640" y="853" text-anchor="middle" class="note">Shared-pool 429 can affect multiple endpoints. Regional resources are not reserved capacity.</text>
+  <text x="40" y="900" class="small">Lab implementation: Python routing + HTTP/SSE simulation + optional model Bicep. Edge/hosting/distributed quota are architecture references.</text>
+</svg>

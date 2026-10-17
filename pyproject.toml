@@ -1,0 +1,49 @@
+[project]
+name = "foundry-resiliency"
+version = "0.1.0"
+description = "Testable Global Standard multi-region resilience patterns for Microsoft Foundry."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "azure-identity>=1.23,<2",
+    "httpx>=0.28,<1",
+    "openai>=2,<3",
+    "pydantic>=2.11,<3",
+]
+
+[project.scripts]
+foundry-resiliency = "foundry_resiliency.cli:main"
+
+[dependency-groups]
+dev = [
+    "anyio>=4,<5",
+    "ipykernel>=6",
+    "ipywidgets>=8",
+    "mypy>=1.10,<2",
+    "pytest>=8,<10",
+    "ruff>=0.11,<1",
+    "tqdm>=4",
+]
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "ASYNC"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["src"]
