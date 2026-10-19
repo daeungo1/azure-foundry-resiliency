@@ -27,7 +27,7 @@
   <text x="640" y="259" text-anchor="middle" class="note">Reference hosting layer, not deployed by this lab</text>
   <path d="M640 275V314" class="line"/>
   <rect x="40" y="318" width="1200" height="130" rx="14" fill="#eaf3fc" stroke="#8cb0ce"/>
-  <text x="60" y="344" class="label">Regional Agent + gateway: authentication, bounded queue, stream without buffering</text>
+  <text x="60" y="348" class="label">Regional Agent + gateway: authentication, bounded queue, stream without buffering</text>
   <g text-anchor="middle">
     <rect x="60" y="365" width="215" height="60" class="box"/><text x="167" y="400" class="label">Region01 Agent</text>
     <rect x="300" y="365" width="215" height="60" class="box"/><text x="407" y="400" class="label">Region02 Agent</text>

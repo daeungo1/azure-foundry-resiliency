@@ -103,6 +103,12 @@ README의 집계 표와 저장된 JSON이 일치하는지 회귀 테스트로 �
 pytest의 fake clock 테스트는 긴 Retry-After를 실제로 기다리지 않고 규칙을 검증합니다.
 SSE 테스트는 HTTP chunk를 텍스트 토큰으로 잘못 계산하지 않습니다.
 
+SVG는 XML·접근성 검사와 별도로 브라우저에서 실제 글자 경계를 측정합니다.
+전체 viewBox뿐 아니라 각 라벨이 속한 가장 작은 박스에 대해 SVG 좌표 기준 좌우 12, 상하 8의 여백을 확인합니다.
+Segoe UI, Arial, sans-serif 각각에서 `document.fonts.ready`를 기다린 후
+박스 밖 글자와 같은 박스 내 텍스트 겹침도 검사합니다.
+이 브라우저 치수 검증은 pytest의 정적 SVG 검사와 구분하며, 결과는 검증 기록의 `svg_render`에 남깁니다.
+
 `smoke`는 `--confirm-paid` 없이는 호출하지 않습니다.
 실제 endpoint가 없다면 live test는 `not_run`으로 남깁니다.
 preflight는 quota Scope·사용 가능 capacity·전체 Agent 기능을 검증하지 않습니다.

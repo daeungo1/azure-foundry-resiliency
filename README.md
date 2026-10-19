@@ -319,6 +319,9 @@ N=16의 같은 조건에서는 테스트한 첫 두 요청 모두 20회 상한�
 
 ![현재 단일 구독 글로벌 아키텍처](docs/diagrams/global-single-subscription.svg)
 
+SVG 4종은 Segoe UI·Arial·sans-serif에서 박스 내부 여백, 글자 겹침과 캔버스 경계를 확인했습니다.
+줄바꿈과 라벨 간격을 조정했으며, 검증 범위는 [테스트 가이드](docs/testing.md)에 정리했습니다.
+
 [다중 구독 SVG](docs/diagrams/global-multi-subscription.svg)는 향후 확장 참고안입니다.
 기본값은 단일 구독이며, 두 구독의 가상 테스트를 지원합니다.
 실제 추가 구독 생성·배포는 여전히 보류합니다.

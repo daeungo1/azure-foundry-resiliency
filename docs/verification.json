@@ -60,9 +60,20 @@
     },
     {
       "name": "svg_render",
-      "method": "Chromium browser render, SVG XML tests and getBBox text-bound checks",
+      "method": "Chromium getBBox checks against each owning box, plus canvas bounds and same-box text overlap; SVG XML/accessibility tests",
       "status": "passed",
       "files": 4,
+      "fonts": ["Segoe UI", "Arial", "sans-serif"],
+      "diagram_font_combinations": 12,
+      "boxed_labels_per_font": 77,
+      "boxed_label_checks": 231,
+      "canvas_label_checks": 279,
+      "font_loading": "Await document.fonts.ready before geometry measurements",
+      "measurement_units": "SVG user units",
+      "minimum_horizontal_padding": 12,
+      "minimum_vertical_padding": 8,
+      "out_of_box_labels": 0,
+      "overlapping_labels": 0,
       "out_of_viewbox_labels": 0,
       "tooling_note": "VS Code preload warnings occurred on standalone SVG pages; direct DOM rendering and geometry evaluation succeeded."
     },
@@ -191,8 +202,8 @@
     "limits": "Does not verify real subscription creation, RBAC, actual quota allocation, shared-pool capacity isolation or global TTFT."
   },
   "previous_remote_ci": {
-    "url": "https://github.com/daeungo1/azure-foundry-resiliency/actions/runs/39009240082",
-    "commit": "71ab1c47ce47a14cc71cf77fd5b2950e3797b18b",
+    "url": "https://github.com/daeungo1/azure-foundry-resiliency/actions/runs/39202523808",
+    "commit": "8fc374a5bd8e751e454a7bd8bad019d6a7b6c26a",
     "status": "success",
     "applies_to_current_results": false
   },
