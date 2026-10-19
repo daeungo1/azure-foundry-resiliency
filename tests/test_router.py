@@ -56,9 +56,9 @@ def settings(**changes: object) -> Settings:
             base_url=f"https://{name}.openai.azure.com/openai/v1/",
         )
         for name, model, region, priority in [
-            ("a", PRIMARY, "eastus2", 0),
-            ("b", PRIMARY, "swedencentral", 1),
-            ("c", FALLBACK, "eastus2", 0),
+            ("a", PRIMARY, "Region03", 0),
+            ("b", PRIMARY, "Region05", 1),
+            ("c", FALLBACK, "Region03", 0),
         ]
     ]
     return Settings.model_validate(
@@ -283,7 +283,7 @@ async def test_unknown_model_and_unsupported_capability_fail_before_network() ->
 async def test_user_region_preference_precedes_static_priority() -> None:
     script = Script({})
     client, _ = router(script)
-    result = await client.route(request(preferred_regions=["swedencentral", "eastus2"]))
+    result = await client.route(request(preferred_regions=["Region05", "Region03"]))
     assert result.backend_id == "b"
 
 
@@ -335,3 +335,19 @@ async def test_total_deadline_is_checked_after_synchronous_transport_work() -> N
     with pytest.raises(RoutingExhausted, match="deadline"):
         await client.route(request())
     assert client.states["a"].in_flight == 0
+
+
+async def test_private_azure_location_is_not_used_in_routing_logs_or_summary(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    config = settings()
+    backends = [
+        backend.model_copy(update={"azure_location": "private-location-1"})
+        for backend in config.backends
+    ]
+    script = Script({"a": [BackendError(429, {"Retry-After": "60"})]})
+    client, _ = router(script, config.model_copy(update={"backends": backends}))
+    result = await client.route(request())
+    assert result.resource_region.startswith("Region")
+    assert "private-location-1" not in str(result.summary())
+    assert "private-location-1" not in caplog.text

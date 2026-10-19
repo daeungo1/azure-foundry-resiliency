@@ -15,7 +15,7 @@
   <rect x="270" y="120" width="300" height="170" rx="12" fill="#e5f0ff" stroke="#4384b9"/>
   <text x="420" y="158" text-anchor="middle" class="l">Requested model group</text>
   <text x="420" y="188" text-anchor="middle" class="n">gpt-6.1-sol, pinned version</text>
-  <text x="420" y="218" text-anchor="middle" class="n">KR / UK / US / CA candidates</text>
+  <text x="420" y="218" text-anchor="middle" class="n">Region01 / Region02 / Region03 / Region04 candidates</text>
   <text x="420" y="252" text-anchor="middle" class="n">All unavailable within time budget</text>
   <path d="M570 198H644" class="a"/>
   <rect x="650" y="148" width="195" height="100" rx="12" fill="#fff0d8" stroke="#c9994c"/>

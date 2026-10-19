@@ -1,314 +1,346 @@
 {
   "backends": [
     {
-      "id": "a-koreacentral-gpt-6.1-sol",
+      "id": "a-Region01-gpt-6.1-sol",
       "model": "gpt-6.1-sol",
       "version": "2026-09-29",
       "deployment": "gpt-6.1-sol",
-      "region": "koreacentral",
-      "base_url": "https://replace-a-koreacentral.openai.azure.com/openai/v1/",
+      "region": "Region01",
+      "subscription": "Subscription01",
+      "azure_location": null,
+      "base_url": "https://replace-a-region01.openai.azure.com/openai/v1/",
       "deployment_type": "GlobalStandard",
       "priority": 0,
       "max_in_flight": 4,
       "capabilities": [
         "text"
       ],
-      "resource_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/replace-rg/providers/Microsoft.CognitiveServices/accounts/replace-a-koreacentral",
+      "resource_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/replace-rg/providers/Microsoft.CognitiveServices/accounts/replace-a-region01",
       "api_key_env": null,
       "quota_pool": "subscription-a:gpt-6.1-sol:2026-09-29:global"
     },
     {
-      "id": "a-uksouth-gpt-6.1-sol",
+      "id": "a-Region02-gpt-6.1-sol",
       "model": "gpt-6.1-sol",
       "version": "2026-09-29",
       "deployment": "gpt-6.1-sol",
-      "region": "uksouth",
-      "base_url": "https://replace-a-uksouth.openai.azure.com/openai/v1/",
+      "region": "Region02",
+      "subscription": "Subscription01",
+      "azure_location": null,
+      "base_url": "https://replace-a-region02.openai.azure.com/openai/v1/",
       "deployment_type": "GlobalStandard",
       "priority": 0,
       "max_in_flight": 4,
       "capabilities": [
         "text"
       ],
-      "resource_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/replace-rg/providers/Microsoft.CognitiveServices/accounts/replace-a-uksouth",
+      "resource_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/replace-rg/providers/Microsoft.CognitiveServices/accounts/replace-a-region02",
       "api_key_env": null,
       "quota_pool": "subscription-a:gpt-6.1-sol:2026-09-29:global"
     },
     {
-      "id": "a-eastus2-gpt-6.1-sol",
+      "id": "a-Region03-gpt-6.1-sol",
       "model": "gpt-6.1-sol",
       "version": "2026-09-29",
       "deployment": "gpt-6.1-sol",
-      "region": "eastus2",
-      "base_url": "https://replace-a-eastus2.openai.azure.com/openai/v1/",
+      "region": "Region03",
+      "subscription": "Subscription01",
+      "azure_location": null,
+      "base_url": "https://replace-a-region03.openai.azure.com/openai/v1/",
       "deployment_type": "GlobalStandard",
       "priority": 0,
       "max_in_flight": 4,
       "capabilities": [
         "text"
       ],
-      "resource_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/replace-rg/providers/Microsoft.CognitiveServices/accounts/replace-a-eastus2",
+      "resource_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/replace-rg/providers/Microsoft.CognitiveServices/accounts/replace-a-region03",
       "api_key_env": null,
       "quota_pool": "subscription-a:gpt-6.1-sol:2026-09-29:global"
     },
     {
-      "id": "a-canadaeast-gpt-6.1-sol",
+      "id": "a-Region04-gpt-6.1-sol",
       "model": "gpt-6.1-sol",
       "version": "2026-09-29",
       "deployment": "gpt-6.1-sol",
-      "region": "canadaeast",
-      "base_url": "https://replace-a-canadaeast.openai.azure.com/openai/v1/",
+      "region": "Region04",
+      "subscription": "Subscription01",
+      "azure_location": null,
+      "base_url": "https://replace-a-region04.openai.azure.com/openai/v1/",
       "deployment_type": "GlobalStandard",
       "priority": 0,
       "max_in_flight": 4,
       "capabilities": [
         "text"
       ],
-      "resource_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/replace-rg/providers/Microsoft.CognitiveServices/accounts/replace-a-canadaeast",
+      "resource_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/replace-rg/providers/Microsoft.CognitiveServices/accounts/replace-a-region04",
       "api_key_env": null,
       "quota_pool": "subscription-a:gpt-6.1-sol:2026-09-29:global"
     },
     {
-      "id": "a-koreacentral-gpt-6-luna",
+      "id": "a-Region01-gpt-6-luna",
       "model": "gpt-6-luna",
       "version": "2026-09-22",
       "deployment": "gpt-6-luna",
-      "region": "koreacentral",
-      "base_url": "https://replace-a-koreacentral.openai.azure.com/openai/v1/",
+      "region": "Region01",
+      "subscription": "Subscription01",
+      "azure_location": null,
+      "base_url": "https://replace-a-region01.openai.azure.com/openai/v1/",
       "deployment_type": "GlobalStandard",
       "priority": 0,
       "max_in_flight": 4,
       "capabilities": [
         "text"
       ],
-      "resource_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/replace-rg/providers/Microsoft.CognitiveServices/accounts/replace-a-koreacentral",
+      "resource_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/replace-rg/providers/Microsoft.CognitiveServices/accounts/replace-a-region01",
       "api_key_env": null,
       "quota_pool": "subscription-a:gpt-6-luna:2026-09-22:global"
     },
     {
-      "id": "a-uksouth-gpt-6-luna",
+      "id": "a-Region02-gpt-6-luna",
       "model": "gpt-6-luna",
       "version": "2026-09-22",
       "deployment": "gpt-6-luna",
-      "region": "uksouth",
-      "base_url": "https://replace-a-uksouth.openai.azure.com/openai/v1/",
+      "region": "Region02",
+      "subscription": "Subscription01",
+      "azure_location": null,
+      "base_url": "https://replace-a-region02.openai.azure.com/openai/v1/",
       "deployment_type": "GlobalStandard",
       "priority": 0,
       "max_in_flight": 4,
       "capabilities": [
         "text"
       ],
-      "resource_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/replace-rg/providers/Microsoft.CognitiveServices/accounts/replace-a-uksouth",
+      "resource_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/replace-rg/providers/Microsoft.CognitiveServices/accounts/replace-a-region02",
       "api_key_env": null,
       "quota_pool": "subscription-a:gpt-6-luna:2026-09-22:global"
     },
     {
-      "id": "a-eastus2-gpt-6-luna",
+      "id": "a-Region03-gpt-6-luna",
       "model": "gpt-6-luna",
       "version": "2026-09-22",
       "deployment": "gpt-6-luna",
-      "region": "eastus2",
-      "base_url": "https://replace-a-eastus2.openai.azure.com/openai/v1/",
+      "region": "Region03",
+      "subscription": "Subscription01",
+      "azure_location": null,
+      "base_url": "https://replace-a-region03.openai.azure.com/openai/v1/",
       "deployment_type": "GlobalStandard",
       "priority": 0,
       "max_in_flight": 4,
       "capabilities": [
         "text"
       ],
-      "resource_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/replace-rg/providers/Microsoft.CognitiveServices/accounts/replace-a-eastus2",
+      "resource_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/replace-rg/providers/Microsoft.CognitiveServices/accounts/replace-a-region03",
       "api_key_env": null,
       "quota_pool": "subscription-a:gpt-6-luna:2026-09-22:global"
     },
     {
-      "id": "a-canadaeast-gpt-6-luna",
+      "id": "a-Region04-gpt-6-luna",
       "model": "gpt-6-luna",
       "version": "2026-09-22",
       "deployment": "gpt-6-luna",
-      "region": "canadaeast",
-      "base_url": "https://replace-a-canadaeast.openai.azure.com/openai/v1/",
+      "region": "Region04",
+      "subscription": "Subscription01",
+      "azure_location": null,
+      "base_url": "https://replace-a-region04.openai.azure.com/openai/v1/",
       "deployment_type": "GlobalStandard",
       "priority": 0,
       "max_in_flight": 4,
       "capabilities": [
         "text"
       ],
-      "resource_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/replace-rg/providers/Microsoft.CognitiveServices/accounts/replace-a-canadaeast",
+      "resource_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/replace-rg/providers/Microsoft.CognitiveServices/accounts/replace-a-region04",
       "api_key_env": null,
       "quota_pool": "subscription-a:gpt-6-luna:2026-09-22:global"
     },
     {
-      "id": "a-koreacentral-gpt-5.6-terra",
+      "id": "a-Region01-gpt-5.6-terra",
       "model": "gpt-5.6-terra",
       "version": "2026-07-09",
       "deployment": "gpt-5.6-terra",
-      "region": "koreacentral",
-      "base_url": "https://replace-a-koreacentral.openai.azure.com/openai/v1/",
+      "region": "Region01",
+      "subscription": "Subscription01",
+      "azure_location": null,
+      "base_url": "https://replace-a-region01.openai.azure.com/openai/v1/",
       "deployment_type": "GlobalStandard",
       "priority": 0,
       "max_in_flight": 4,
       "capabilities": [
         "text"
       ],
-      "resource_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/replace-rg/providers/Microsoft.CognitiveServices/accounts/replace-a-koreacentral",
+      "resource_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/replace-rg/providers/Microsoft.CognitiveServices/accounts/replace-a-region01",
       "api_key_env": null,
       "quota_pool": "subscription-a:gpt-5.6-terra:2026-07-09:global"
     },
     {
-      "id": "a-uksouth-gpt-5.6-terra",
+      "id": "a-Region02-gpt-5.6-terra",
       "model": "gpt-5.6-terra",
       "version": "2026-07-09",
       "deployment": "gpt-5.6-terra",
-      "region": "uksouth",
-      "base_url": "https://replace-a-uksouth.openai.azure.com/openai/v1/",
+      "region": "Region02",
+      "subscription": "Subscription01",
+      "azure_location": null,
+      "base_url": "https://replace-a-region02.openai.azure.com/openai/v1/",
       "deployment_type": "GlobalStandard",
       "priority": 0,
       "max_in_flight": 4,
       "capabilities": [
         "text"
       ],
-      "resource_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/replace-rg/providers/Microsoft.CognitiveServices/accounts/replace-a-uksouth",
+      "resource_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/replace-rg/providers/Microsoft.CognitiveServices/accounts/replace-a-region02",
       "api_key_env": null,
       "quota_pool": "subscription-a:gpt-5.6-terra:2026-07-09:global"
     },
     {
-      "id": "a-eastus2-gpt-5.6-terra",
+      "id": "a-Region03-gpt-5.6-terra",
       "model": "gpt-5.6-terra",
       "version": "2026-07-09",
       "deployment": "gpt-5.6-terra",
-      "region": "eastus2",
-      "base_url": "https://replace-a-eastus2.openai.azure.com/openai/v1/",
+      "region": "Region03",
+      "subscription": "Subscription01",
+      "azure_location": null,
+      "base_url": "https://replace-a-region03.openai.azure.com/openai/v1/",
       "deployment_type": "GlobalStandard",
       "priority": 0,
       "max_in_flight": 4,
       "capabilities": [
         "text"
       ],
-      "resource_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/replace-rg/providers/Microsoft.CognitiveServices/accounts/replace-a-eastus2",
+      "resource_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/replace-rg/providers/Microsoft.CognitiveServices/accounts/replace-a-region03",
       "api_key_env": null,
       "quota_pool": "subscription-a:gpt-5.6-terra:2026-07-09:global"
     },
     {
-      "id": "a-canadaeast-gpt-5.6-terra",
+      "id": "a-Region04-gpt-5.6-terra",
       "model": "gpt-5.6-terra",
       "version": "2026-07-09",
       "deployment": "gpt-5.6-terra",
-      "region": "canadaeast",
-      "base_url": "https://replace-a-canadaeast.openai.azure.com/openai/v1/",
+      "region": "Region04",
+      "subscription": "Subscription01",
+      "azure_location": null,
+      "base_url": "https://replace-a-region04.openai.azure.com/openai/v1/",
       "deployment_type": "GlobalStandard",
       "priority": 0,
       "max_in_flight": 4,
       "capabilities": [
         "text"
       ],
-      "resource_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/replace-rg/providers/Microsoft.CognitiveServices/accounts/replace-a-canadaeast",
+      "resource_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/replace-rg/providers/Microsoft.CognitiveServices/accounts/replace-a-region04",
       "api_key_env": null,
       "quota_pool": "subscription-a:gpt-5.6-terra:2026-07-09:global"
     },
     {
-      "id": "a-koreacentral-gpt-5.6-luna",
+      "id": "a-Region01-gpt-5.6-luna",
       "model": "gpt-5.6-luna",
       "version": "2026-07-09",
       "deployment": "gpt-5.6-luna",
-      "region": "koreacentral",
-      "base_url": "https://replace-a-koreacentral.openai.azure.com/openai/v1/",
+      "region": "Region01",
+      "subscription": "Subscription01",
+      "azure_location": null,
+      "base_url": "https://replace-a-region01.openai.azure.com/openai/v1/",
       "deployment_type": "GlobalStandard",
       "priority": 0,
       "max_in_flight": 4,
       "capabilities": [
         "text"
       ],
-      "resource_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/replace-rg/providers/Microsoft.CognitiveServices/accounts/replace-a-koreacentral",
+      "resource_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/replace-rg/providers/Microsoft.CognitiveServices/accounts/replace-a-region01",
       "api_key_env": null,
       "quota_pool": "subscription-a:gpt-5.6-luna:2026-07-09:global"
     },
     {
-      "id": "a-uksouth-gpt-5.6-luna",
+      "id": "a-Region02-gpt-5.6-luna",
       "model": "gpt-5.6-luna",
       "version": "2026-07-09",
       "deployment": "gpt-5.6-luna",
-      "region": "uksouth",
-      "base_url": "https://replace-a-uksouth.openai.azure.com/openai/v1/",
+      "region": "Region02",
+      "subscription": "Subscription01",
+      "azure_location": null,
+      "base_url": "https://replace-a-region02.openai.azure.com/openai/v1/",
       "deployment_type": "GlobalStandard",
       "priority": 0,
       "max_in_flight": 4,
       "capabilities": [
         "text"
       ],
-      "resource_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/replace-rg/providers/Microsoft.CognitiveServices/accounts/replace-a-uksouth",
+      "resource_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/replace-rg/providers/Microsoft.CognitiveServices/accounts/replace-a-region02",
       "api_key_env": null,
       "quota_pool": "subscription-a:gpt-5.6-luna:2026-07-09:global"
     },
     {
-      "id": "a-eastus2-gpt-5.6-luna",
+      "id": "a-Region03-gpt-5.6-luna",
       "model": "gpt-5.6-luna",
       "version": "2026-07-09",
       "deployment": "gpt-5.6-luna",
-      "region": "eastus2",
-      "base_url": "https://replace-a-eastus2.openai.azure.com/openai/v1/",
+      "region": "Region03",
+      "subscription": "Subscription01",
+      "azure_location": null,
+      "base_url": "https://replace-a-region03.openai.azure.com/openai/v1/",
       "deployment_type": "GlobalStandard",
       "priority": 0,
       "max_in_flight": 4,
       "capabilities": [
         "text"
       ],
-      "resource_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/replace-rg/providers/Microsoft.CognitiveServices/accounts/replace-a-eastus2",
+      "resource_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/replace-rg/providers/Microsoft.CognitiveServices/accounts/replace-a-region03",
       "api_key_env": null,
       "quota_pool": "subscription-a:gpt-5.6-luna:2026-07-09:global"
     },
     {
-      "id": "a-canadaeast-gpt-5.6-luna",
+      "id": "a-Region04-gpt-5.6-luna",
       "model": "gpt-5.6-luna",
       "version": "2026-07-09",
       "deployment": "gpt-5.6-luna",
-      "region": "canadaeast",
-      "base_url": "https://replace-a-canadaeast.openai.azure.com/openai/v1/",
+      "region": "Region04",
+      "subscription": "Subscription01",
+      "azure_location": null,
+      "base_url": "https://replace-a-region04.openai.azure.com/openai/v1/",
       "deployment_type": "GlobalStandard",
       "priority": 0,
       "max_in_flight": 4,
       "capabilities": [
         "text"
       ],
-      "resource_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/replace-rg/providers/Microsoft.CognitiveServices/accounts/replace-a-canadaeast",
+      "resource_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/replace-rg/providers/Microsoft.CognitiveServices/accounts/replace-a-region04",
       "api_key_env": null,
       "quota_pool": "subscription-a:gpt-5.6-luna:2026-07-09:global"
     }
   ],
   "fallbacks": {},
   "region_preferences": {
-    "KR": [
-      "koreacentral",
-      "eastus2",
-      "canadaeast",
-      "uksouth",
-      "swedencentral"
+    "Region01": [
+      "Region01",
+      "Region03",
+      "Region04",
+      "Region02",
+      "Region05"
     ],
-    "UK": [
-      "uksouth",
-      "swedencentral",
-      "eastus2",
-      "canadaeast",
-      "koreacentral"
+    "Region02": [
+      "Region02",
+      "Region05",
+      "Region03",
+      "Region04",
+      "Region01"
     ],
-    "US": [
-      "eastus2",
-      "canadaeast",
-      "uksouth",
-      "swedencentral",
-      "koreacentral"
+    "Region03": [
+      "Region03",
+      "Region04",
+      "Region02",
+      "Region05",
+      "Region01"
     ],
-    "CA": [
-      "canadaeast",
-      "eastus2",
-      "uksouth",
-      "swedencentral",
-      "koreacentral"
+    "Region04": [
+      "Region04",
+      "Region03",
+      "Region02",
+      "Region05",
+      "Region01"
     ],
-    "EU": [
-      "swedencentral",
-      "uksouth",
-      "eastus2",
-      "canadaeast",
-      "koreacentral"
+    "Region05": [
+      "Region05",
+      "Region02",
+      "Region03",
+      "Region04",
+      "Region01"
     ]
   },
   "deadline_seconds": 8.0,

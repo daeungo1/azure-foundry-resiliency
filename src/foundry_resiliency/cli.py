@@ -144,10 +144,13 @@ def create_parser() -> argparse.ArgumentParser:
     example = commands.add_parser("example", help="Write placeholder configuration")
     example.add_argument("--mode", choices=["same", "mixed"], required=True)
     example.add_argument("--subscriptions", type=int, choices=[1, 2], default=1)
-    example.add_argument("--include-eu", action="store_true")
+    example.add_argument("--include-expansion", action="store_true")
+    example.add_argument("--regions", type=int, help="Region01..N, from 1 to 16")
     simulation = commands.add_parser("simulate", help="Run the offline HTTP/SSE chaos matrix")
     simulation.add_argument("--count", type=int, default=3)
     simulation.add_argument("--stream", action="store_true")
+    simulation.add_argument("--subscriptions", type=int, choices=[1, 2], default=1)
+    simulation.add_argument("--regions", type=int, default=4, help="Region01..N, from 1 to 16")
     validate = commands.add_parser("validate-config")
     arm = commands.add_parser("preflight", help="Read-only existing ARM deployment checks")
     live = commands.add_parser("smoke", help="Small, explicitly confirmed billable inference")
@@ -155,7 +158,7 @@ def create_parser() -> argparse.ArgumentParser:
         command.add_argument("--config", type=Path, required=True)
     live.add_argument("--confirm-paid", action="store_true")
     live.add_argument("--model", choices=list(TARGET_MODELS), required=True)
-    live.add_argument("--market", choices=["KR", "UK", "US", "CA", "EU"], default="KR")
+    live.add_argument("--market", default="Region01", help="Region alias in region_preferences")
     live.add_argument("--count", type=int, default=1)
     live.add_argument("--stream", action="store_true")
     live.add_argument("--allow-model-fallback", action="store_true")
@@ -186,12 +189,20 @@ def main(argv: list[str] | None = None) -> int:
             config = example_settings(
                 mixed=args.mode == "mixed",
                 subscriptions=args.subscriptions,
-                include_eu=args.include_eu,
+                include_expansion=args.include_expansion,
+                region_count=args.regions,
             )
             _write(config.model_dump(mode="json"), args.output)
             return 0
         if args.command == "simulate":
-            report = asyncio.run(simulate(count=args.count, streaming=args.stream))
+            report = asyncio.run(
+                simulate(
+                    count=args.count,
+                    streaming=args.stream,
+                    subscriptions=args.subscriptions,
+                    regions=args.regions,
+                )
+            )
             _write(report, args.output)
             return 0 if report["passed"] else 1
         config = load_settings(args.config)

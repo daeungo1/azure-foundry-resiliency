@@ -13,6 +13,7 @@ build/
 .env.*
 !.env.example
 configs/*.local.json
+infra/*.local.bicepparam
 artifacts/*
 !artifacts/.gitkeep
 infra/*.json

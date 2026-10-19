@@ -12,7 +12,7 @@ def backend(**changes: object) -> Backend:
         "model": "gpt-6.1-sol",
         "version": "2026-09-29",
         "deployment": "sol",
-        "region": "eastus2",
+        "region": "Region03",
         "base_url": "https://example.openai.azure.com/openai/v1/",
     }
     return Backend.model_validate(values | changes)

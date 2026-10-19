@@ -1,7 +1,7 @@
 ---
 title: 글로벌 Agent의 동일 모델·혼합 모델 및 다중 구독 아키텍처
 description: 설계 경계, routing 순서, quota 장애 도메인과 운영 gateway 확장
-ms.date: 2026-10-16
+ms.date: 2026-10-19
 ---
 
 ## 설계 결정
@@ -18,10 +18,12 @@ APIM 중심안은 중앙 정책·거버넌스에, LiteLLM 중심안은 여러 �
 
 ![현재 단일 구독 및 글로벌 진입점](diagrams/global-single-subscription.svg)
 
-현재 범위는 단일 구독입니다. 다중 구독의 실제 구성·권한 요청·테스트는 보류합니다.
+기본 구성은 단일 구독입니다. 다중 구독의 실제 구성·권한 요청·실환경 테스트는 보류합니다.
 [다중 구독 SVG](diagrams/global-multi-subscription.svg)는 향후 참고안으로만 유지합니다.
+실제 구독 작업과 별개로, 두 가상 구독과 Region01~RegionN의 모의 테스트를 지원합니다.
+두 구독의 별도 quota pool은 시뮬레이션 가정이며 실제 capacity 독립성을 의미하지 않습니다.
 
-1. KR, UK, US, CA 사용자를 Front Door 등 전역 진입점에서 인접한 지역 Agent/gateway로 연결합니다.
+1. Region01, Region02, Region03, Region04 사용자를 Front Door 등 전역 진입점에서 인접한 지역 Agent/gateway로 연결합니다.
 2. 각 지역에서 인증, tenant/사용자별 admission, 짧고 제한된 대기열을 적용합니다.
 3. 사용자 시장의 `region_preferences`와 측정된 TTFT를 기준으로 backend 후보를 선택합니다.
 4. 같은 모델·버전의 후보를 먼저 사용하고, 승인한 경우에만 다음 모델 그룹으로 이동합니다.
@@ -35,9 +37,9 @@ Front Door와 production Agent hosting을 배포하지 않습니다.
 
 ![동일 모델 장애 전환](diagrams/same-model.svg)
 
-`gpt-6.1-sol` 요청은 같은 버전의 KR/UK/US/CA 리소스만 사용합니다.
-UK 사용자라면 예제 후보는 UK, US, CA, KR 순서입니다.
-EU 리소스를 추가하면 UK, EU, US, CA, KR 순서가 됩니다.
+`gpt-6.1-sol` 요청은 같은 버전의 Region01/Region02/Region03/Region04 리소스만 사용합니다.
+Region02 사용자라면 예제 후보는 Region02, Region03, Region04, Region01 순서입니다.
+Region05 리소스를 추가하면 Region02, Region05, Region03, Region04, Region01 순서가 됩니다.
 다른 세 모델도 동일한 규칙을 사용합니다.
 
 * 429는 server `retry-after-ms`와 `Retry-After` 중 긴 유효 값을 하한으로 지킵니다.
@@ -67,7 +69,7 @@ context 크기와 비용을 검증하고 승인된 방향만 남겨야 합니다
 모델 차이를 숨기기 위해 입력을 잘라내거나 API parameter를 조용히 삭제하지 않습니다.
 
 지역을 바꾸는 경우와 모델을 바꾸는 경우 모두 tenant의 허용된 데이터 처리 범위 안이어야 합니다.
-EU 고객의 데이터 처리 제한이 생기면 Global Standard 자체의 적합성을 먼저 재검토합니다.
+Region05 고객의 데이터 처리 제한이 생기면 Global Standard 자체의 적합성을 먼저 재검토합니다.
 
 ## 구독과 quota pool
 
@@ -109,7 +111,11 @@ remaining만 있고 유효한 reset이 없으면 경고 후 60초간 보수적�
 
 `max_attempts`는 모든 리전·모델을 합한 총 시도 수입니다.
 후보 수보다 작게 설정하면 fallback 그룹까지 도달하지 않을 수 있습니다.
-혼합 예제는 8회, 동일 모델 예제는 4회입니다.
+혼합 예제는 16회, 동일 모델 예제는 4회입니다.
+4개 모델 × 4개 지역 후보가 모두 막힌 경우에도 총 시도 수는 이 상한을 넘지 않습니다.
+위 값은 기본 단일 구독·4개 지역 예제 기준입니다.
+구독 수·지역 수를 변경한 예제는 후보 수에 맞게 시도 상한을 계산하되 최대 20회를 유지합니다.
+같은 모델의 모든 후보를 확인하기 전에 예산이 소진되면 타 모델까지 도달하지 못할 수 있습니다.
 각 attempt timeout과 전체 첫 응답 deadline은 별도 예산입니다.
 
 ## 스트리밍과 Agent 상태

@@ -26,6 +26,22 @@ jobs:
       - run: uv run ruff format --check src tests
       - run: uv run mypy src
       - run: uv build --wheel
+      - name: Reproduce anonymous resilience evidence
+        if: matrix.os == 'ubuntu-latest' && matrix.python == '3.11'
+        run: |
+          uv run python -m foundry_resiliency simulate --count 10 --output artifacts/resilience-http.json
+          uv run python -m foundry_resiliency simulate --stream --count 10 --output artifacts/resilience-sse.json
+          uv run python -m foundry_resiliency simulate --subscriptions 2 --regions 4 --count 10 --output artifacts/two-subscriptions-http.json
+          uv run python -m foundry_resiliency simulate --subscriptions 2 --regions 4 --stream --count 10 --output artifacts/two-subscriptions-sse.json
+      - name: Upload synthetic test results
+        if: matrix.os == 'ubuntu-latest' && matrix.python == '3.11'
+        uses: actions/upload-artifact@v4
+        with:
+          name: resilience-evidence
+          path: |
+            artifacts/resilience-*.json
+            artifacts/two-subscriptions-*.json
+          if-no-files-found: error
       - name: Compile Bicep and example parameters
         if: matrix.os == 'windows-latest' && matrix.python == '3.11'
         shell: pwsh

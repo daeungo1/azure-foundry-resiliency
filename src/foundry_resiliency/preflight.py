@@ -51,9 +51,11 @@ class DeploymentDocument(BaseModel):
 
 
 def validate_documents(backend: Backend, account: object, deployment: object) -> None:
+    if backend.azure_location is None:
+        raise ValueError(f"Set private azure_location in local config for {backend.id}")
     resource = AccountDocument.model_validate(account)
     deployed = DeploymentDocument.model_validate(deployment)
-    if resource.location.lower().replace(" ", "") != backend.region.lower():
+    if resource.location.lower().replace(" ", "") != backend.azure_location.lower():
         raise ValueError(f"ARM resource region mismatch for {backend.id}")
     hostname = urlsplit(backend.base_url).hostname
     if hostname != f"{resource.properties.customSubDomainName}.openai.azure.com":

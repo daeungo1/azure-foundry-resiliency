@@ -1,11 +1,12 @@
 using './main.bicep'
 
 param prefix = 'replace-lab'
+// Aliases only. Replace with actual Azure locations in an ignored *.local.bicepparam copy.
 param locations = [
-  'koreacentral'
-  'uksouth'
-  'eastus2'
-  'canadaeast'
+  'Region01'
+  'Region02'
+  'Region03'
+  'Region04'
 ]
 param allowedIps = [
   '203.0.113.10/32'

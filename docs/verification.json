@@ -1,6 +1,6 @@
 {
-  "verified_on": "2026-10-16",
-  "scope": "single_subscription_reference_implementation",
+  "verified_on": "2026-10-19",
+  "scope": "single_subscription_and_virtual_two_subscription_reference",
   "environment": {
     "os": "Windows",
     "python": "3.12.4",
@@ -16,9 +16,9 @@
   "checks": [
     {
       "name": "python_tests",
-      "command": ".\\.venv\\Scripts\\python.exe -m pytest tests -q --tb=short --junitxml=artifacts\\pytest.xml",
+      "command": ".\\.venv\\Scripts\\python.exe -m pytest tests -q --tb=short --junitxml=artifacts\\publication-pytest.xml",
       "status": "passed",
-      "tests": 60,
+      "tests": 91,
       "failures": 0
     },
     {
@@ -45,7 +45,7 @@
     },
     {
       "name": "bicep_model_resources",
-      "command": "bicep-win-x64.exe build infra\\main.bicep --outfile artifacts\\main.json",
+      "command": "bicep-publish-0.48.1.exe build infra\\main.bicep --outfile artifacts\\main.json",
       "status": "passed",
       "compiler": "0.48.1",
       "warnings": 0,
@@ -53,7 +53,7 @@
     },
     {
       "name": "bicep_parameters",
-      "command": "bicep-win-x64.exe build-params infra\\main.bicepparam --outfile artifacts\\main.parameters.json",
+      "command": "bicep-publish-0.48.1.exe build-params infra\\main.bicepparam --outfile artifacts\\main.parameters.json",
       "status": "passed",
       "compiler": "0.48.1",
       "warnings": 0
@@ -69,9 +69,10 @@
     {
       "name": "persisted_configs",
       "status": "passed",
-      "files": 2,
-      "backends_each": 16,
-      "regions": ["koreacentral", "uksouth", "eastus2", "canadaeast"],
+      "files": 3,
+      "single_subscription_backends_each": 16,
+      "two_subscription_backends": 32,
+      "regions": ["Region01", "Region02", "Region03", "Region04"],
       "models": ["gpt-6.1-sol", "gpt-6-luna", "gpt-5.6-terra", "gpt-5.6-luna"]
     },
     {
@@ -83,35 +84,149 @@
   ],
   "chaos": {
     "http": {
-      "command": ".\\.venv\\Scripts\\python.exe -m foundry_resiliency simulate --count 3 --output artifacts\\simulation.json",
+      "command": ".\\.venv\\Scripts\\python.exe -m foundry_resiliency simulate --count 10 --output docs\\results\\resilience-http.json",
       "status": "passed",
-      "scenarios": 64,
-      "logical_requests": 192,
-      "successes": 124,
-      "expected_failures": 68,
-      "report": "../artifacts/simulation.json"
+      "scenarios": 80,
+      "logical_requests": 800,
+      "successes": 484,
+      "expected_failures": 316,
+      "http_attempts": 780,
+      "report": "results/resilience-http.json"
     },
     "sse": {
-      "command": ".\\.venv\\Scripts\\python.exe -m foundry_resiliency simulate --stream --count 3 --output artifacts\\streaming.json",
+      "command": ".\\.venv\\Scripts\\python.exe -m foundry_resiliency simulate --stream --count 10 --output docs\\results\\resilience-sse.json",
       "status": "passed",
-      "scenarios": 64,
-      "logical_requests": 192,
-      "successes": 124,
-      "expected_failures": 68,
-      "report": "../artifacts/streaming.json"
+      "scenarios": 80,
+      "logical_requests": 800,
+      "successes": 484,
+      "expected_failures": 316,
+      "http_attempts": 780,
+      "report": "results/resilience-sse.json"
     },
     "interpretation": "Expected bounded failures and terminal failures are acceptance criteria, not successful model responses.",
     "live_azure_calls": 0,
-    "mock_ttft_is_not_cloud_latency_evidence": true
+    "timing_mode": "virtual_policy_clock",
+    "mock_ttft_is_not_cloud_latency_evidence": true,
+    "model_wide_fault_continuity": {
+      "conditions": ["same_model_429", "same_model_503", "fallback_model_429"],
+      "routing_mode": "mixed",
+      "protocols": ["http", "sse"],
+      "models": 4,
+      "requests_per_model_per_condition_per_protocol": 10,
+      "requests": 240,
+      "successes": 240,
+      "quality_equivalence_verified": false,
+      "production_availability_guaranteed": false
+    }
+  },
+  "anonymization": {
+    "region_aliases": ["Region01", "Region02", "Region03", "Region04", "Region05"],
+    "mapping_published": false,
+    "private_azure_location_required_for_arm_preflight": true,
+    "git_history_rewritten": false,
+    "limitations": "Aliases reduce current file and router-log disclosure; actual endpoints, ARM resource IDs, SDK debug logs and previous Git commits are not automatically scrubbed."
+  },
+  "virtual_subscriptions": {
+    "verified_on": "2026-10-19",
+    "mode": "SDK mock HTTP/SSE with actual Router, not live Azure",
+    "subscriptions": ["Subscription01", "Subscription02"],
+    "regions_per_subscription": ["Region01", "Region02", "Region03", "Region04"],
+    "backend_count": 32,
+    "model_quota_pool_count": 8,
+    "quota_assumption": "Each subscription/model/version shares quota across all its regions; different subscriptions use separate simulated pools.",
+    "real_capacity_isolation_verified": false,
+    "live_azure_calls": 0,
+    "timing_mode": "virtual_policy_clock",
+    "http": {
+      "command": ".\\.venv\\Scripts\\python.exe -m foundry_resiliency simulate --subscriptions 2 --regions 4 --count 10 --output docs\\results\\two-subscriptions-http.json",
+      "status": "passed",
+      "scenarios": 112,
+      "logical_requests": 1120,
+      "successes": 840,
+      "expected_failures": 280,
+      "http_attempts": 1344,
+      "report": "results/two-subscriptions-http.json"
+    },
+    "sse": {
+      "command": ".\\.venv\\Scripts\\python.exe -m foundry_resiliency simulate --subscriptions 2 --regions 4 --stream --count 10 --output docs\\results\\two-subscriptions-sse.json",
+      "status": "passed",
+      "scenarios": 112,
+      "logical_requests": 1120,
+      "successes": 840,
+      "expected_failures": 280,
+      "http_attempts": 1344,
+      "report": "results/two-subscriptions-sse.json"
+    },
+    "subscription_fault_continuity": {
+      "conditions": ["subscription_429", "subscription_503", "subscription_request_headroom", "subscription_token_headroom"],
+      "models": 4,
+      "routing_modes": ["same", "mixed"],
+      "protocols": ["http", "sse"],
+      "requests_per_condition": 160,
+      "requests": 640,
+      "successes": 640,
+      "degraded_responses": 0
+    },
+    "larger_topology_checks": [
+      {
+        "regions_per_subscription": 8,
+        "backend_count": 64,
+        "protocol": "sse",
+        "count_per_condition": 3,
+        "all_scenario_expectations_passed": true,
+        "cascade_sample_attempts": [20, 13, 1],
+        "cascade_sample_successes": [false, true, true]
+      },
+      {
+        "regions_per_subscription": 16,
+        "backend_count": 128,
+        "protocol": "http",
+        "count_per_condition": 2,
+        "all_scenario_expectations_passed": true,
+        "cascade_sample_attempts": [20, 20],
+        "cascade_sample_successes": [false, false]
+      }
+    ],
+    "safety": "The 20-attempt ceiling is unchanged. Earlier failed requests are not reclassified as successes when later requests use shared cooldown state.",
+    "limits": "Does not verify real subscription creation, RBAC, actual quota allocation, shared-pool capacity isolation or global TTFT."
+  },
+  "previous_remote_ci": {
+    "url": "https://github.com/daeungo1/azure-foundry-resiliency/actions/runs/39009240082",
+    "commit": "71ab1c47ce47a14cc71cf77fd5b2950e3797b18b",
+    "status": "success",
+    "applies_to_current_results": false
+  },
+  "combined_results": {
+    "scenarios": 384,
+    "logical_requests": 3840,
+    "successes": 2648,
+    "expected_failures": 1192,
+    "live_azure_calls": 0,
+    "timing_mode": "virtual_policy_clock"
+  },
+  "validation_findings_resolved": [
+    {
+      "finding": "A host-delay spike caused the first mock healthy scenario to exceed a wall-clock deadline before any HTTP attempt.",
+      "original_requests": 10,
+      "original_successes": 9,
+      "local_only_original_failure_evidence": "artifacts/wall-clock-startup-failure.json",
+      "resolution": "Use an injected virtual policy clock for offline mock scenarios; preserve actual host elapsed_ms separately.",
+      "production_timeout_policy_changed": false,
+      "regressions_added": 2
+    }
+  ],
+  "remote_ci": {
+    "workflow": ".github/workflows/ci.yml",
+    "runs_url": "https://github.com/daeungo1/azure-foundry-resiliency/actions/workflows/ci.yml",
+    "note": "This file records local pre-publication checks. GitHub Actions is the source of per-commit remote CI status."
   },
   "not_run": {
     "live_azure_deployment": "No paid provisioning was authorized or performed.",
     "live_arm_preflight": "No concrete existing customer test endpoints and resource IDs were supplied.",
     "live_model_inference": "Explicitly confirmed, configured test deployments are required.",
-    "global_agent_ttft_and_load": "Requires probes in KR, UK, US, CA and future EU with real Agent paths.",
-    "multi_subscription_execution": "Deferred by user; SVG and configuration generation are reference only.",
-    "github_actions": "Workflow provided but not published or executed remotely.",
-    "python_3_11_runtime": "CI matrix includes 3.11; local runtime verification used Python 3.12.",
+    "global_agent_ttft_and_load": "Requires probes in Region01, Region02, Region03, Region04 and future Region05 with real Agent paths.",
+    "multi_subscription_execution": "Real cross-subscription provisioning, RBAC and capacity verification remain deferred; virtual two-subscription tests were performed.",
+    "python_3_11_local_runtime": "Local verification used Python 3.12. See GitHub Actions for the Python 3.11/3.12 matrix.",
     "default_public_index_uv_sync": "External package-host TLS handshake failed; project dependencies were restored using the machine-approved configured package feed without disabling TLS verification."
   }
 }

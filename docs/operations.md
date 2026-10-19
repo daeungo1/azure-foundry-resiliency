@@ -1,13 +1,15 @@
 ---
 title: 단일 구독 Azure 구성과 운영 절차
 description: 모델 배포, 최소 권한, preflight, 소량 실호출과 장애 대응 runbook
-ms.date: 2026-10-16
+ms.date: 2026-10-19
 ---
 
 ## 현재 실행 범위
 
-현재는 단일 구독의 KR/UK/US/CA 리소스 구성을 대상으로 합니다.
+현재는 단일 구독의 Region01/Region02/Region03/Region04 리소스 구성을 대상으로 합니다.
 다중 구독은 향후 확장 참고안이며 실제 권한 확보·배포·테스트는 하지 않습니다.
+실제 구독 없이 실행하는 두 가상 구독 테스트는 [테스트 가이드](testing.md)에서 제공합니다.
+`simulate --subscriptions 2 --regions N`은 구독 생성·조회·유료 호출 없이 동작합니다.
 유료 리소스 생성과 inference는 사용자의 별도 승인·설정 후 실행합니다.
 
 ## 권한 구분
@@ -53,7 +55,11 @@ Owner를 모든 개발자나 운영 identity에 부여하는 방식은 권장하
 네 모델의 Global Standard 배포를 생성합니다.
 [예제 parameter](../infra/main.bicepparam)는 문서용 endpoint 허용 IP와 빈 principal UUID를 사용하므로
 실제로 사용하기 전에 반드시 교체해야 합니다.
-EU는 기본 배포하지 않으며 승인 후 locations에 `swedencentral`을 추가할 수 있습니다.
+Region05는 향후 확장 참고용입니다.
+예제의 `Region01` 등은 실제 Azure location이 아니므로 그대로 배포할 수 없습니다.
+실행 시 [예제 parameter](../infra/main.bicepparam)를 `infra/main.local.bicepparam`으로 복사하고,
+`locations`를 비공개 운영 환경의 실제 Azure location으로 교체합니다.
+이 로컬 parameter 파일은 Git에서 제외됩니다.
 
 로컬 인증을 끄고 Entra만 허용합니다. Public endpoint는 명시한 IP allowlist로 제한합니다.
 이것은 완전한 private-network production landing zone이 아닙니다.
@@ -65,13 +71,16 @@ Bicep 0.48.1 이상을 권장합니다. 이전 compiler에서 `BCP081`이 나오
 # 로컬 컴파일만 수행하며 Azure 리소스를 만들지 않습니다.
 az bicep build --file infra\main.bicep --outfile artifacts\main.json
 
-# 대상 구독을 명시하고, 준비된 테스트 RG와 편집한 parameter를 사용합니다.
+# 예제를 복사하고 locations, IP, principal, capacity를 비공개 설정으로 교체합니다.
+Copy-Item infra\main.bicepparam infra\main.local.bicepparam
+
+# 대상 구독을 명시하고, 준비된 테스트 RG와 편집한 로컬 parameter를 사용합니다.
 az deployment group what-if --subscription "<subscription-id>" `
-  --resource-group "<test-rg>" --parameters infra\main.bicepparam
+  --resource-group "<test-rg>" --parameters infra\main.local.bicepparam
 
 # 비용·권한·네트워크·모델 용량을 검토한 후에만 수동 실행합니다.
 az deployment group create --subscription "<subscription-id>" `
-  --resource-group "<test-rg>" --parameters infra\main.bicepparam
+  --resource-group "<test-rg>" --parameters infra\main.local.bicepparam
 ```
 
 위 create 명령은 이 프로젝트를 만드는 과정에서 실행하지 않습니다.
@@ -86,8 +95,15 @@ uv run python -m foundry_resiliency example --mode same `
 ```
 
 설정에서 `base_url`, `resource_id`, `deployment`를 실제 값으로 바꿉니다.
+`region`은 `Region01` 같은 별칭으로 유지하고 `azure_location`에 실제 Azure location을 입력합니다.
+`id`와 market profile도 중립 별칭으로 유지합니다. ARM 사전 검증은 `azure_location`과
+실제 계정 location을 비교하므로 익명화 때문에 지역 검증을 생략하지 않습니다.
 `model`과 `version`은 실제 ARM deployment와 같아야 합니다.
 모든 local config와 `.env`는 Git에서 제외됩니다. 키를 JSON에 쓰지 않습니다.
+실제 endpoint·resource ID·identity 오류·HTTP debug 로그에는 운영 정보가 포함될 수 있으므로
+별칭이 있다고 해서 모든 실환경 로그가 자동 비식별화되는 것은 아닙니다.
+기존 실제 지역을 넣은 설정은 `region`을 별칭으로, 실제 값을 `azure_location`으로 이동합니다.
+기존 확장 예제 옵션은 중립 명칭 `--include-expansion`으로 변경했습니다.
 기본 Entra 인증을 권장하며, 테스트 키가 필요하면 `api_key_env`에 환경변수 이름만 지정합니다.
 
 ```powershell
@@ -112,10 +128,10 @@ subscription UUID가 빈 예시이거나 endpoint가 `replace-`이면 즉시 중
 
 ```powershell
 uv run python -m foundry_resiliency smoke --config configs\single-subscription.local.json `
-  --model gpt-6.1-sol --market KR --stream --count 5 --confirm-paid `
+  --model gpt-6.1-sol --market Region01 --stream --count 5 --confirm-paid `
   --output artifacts\live-normal.json
 uv run python -m foundry_resiliency smoke --config configs\single-subscription.local.json `
-  --model gpt-6.1-sol --market KR --stream --count 2 --confirm-paid `
+  --model gpt-6.1-sol --market Region01 --stream --count 2 --confirm-paid `
   --fault primary-429 --output artifacts\live-region-fallback.json
 ```
 
@@ -127,7 +143,7 @@ uv run python -m foundry_resiliency smoke --config configs\single-subscription.l
 
 ```powershell
 uv run python -m foundry_resiliency smoke --config configs\mixed-model.local.json `
-  --model gpt-6.1-sol --market UK --stream --count 2 --confirm-paid `
+  --model gpt-6.1-sol --market Region02 --stream --count 2 --confirm-paid `
   --allow-model-fallback --fault same-model-429 --output artifacts\live-mixed.json
 ```
 
@@ -156,9 +172,13 @@ quota 조정과 shared-pool protective throttling은 다른 원인입니다.
 일반 Contributor만으로 Entra inference와 role assignment를 모두 할 수 있다고 가정하지 않습니다.
 다른 tenant 간 구성은 별도 identity·보안 설계가 필요하며 현재 범위 밖입니다.
 
-진행을 재개할 때만 다음 예제를 생성해 교체합니다.
+실환경 준비를 재개할 때는 다음과 같이 로컬 예제를 생성하고 실제 값으로 교체합니다.
 
 ```powershell
-uv run python -m foundry_resiliency example --mode mixed --subscriptions 2 --include-eu `
+uv run python -m foundry_resiliency example --mode mixed --subscriptions 2 --include-expansion `
   --output configs\future-multi-subscription.local.json
 ```
+
+이 예제의 `subscription`은 보고서용 별칭이며 Azure 인증이나 구독 생성 명령이 아닙니다.
+가상 테스트에는 예제의 placeholder를 그대로 사용하고, 실환경으로 전환할 때만
+각 backend의 실제 endpoint·ARM resource ID·권한 및 quota Scope를 별도로 확인합니다.

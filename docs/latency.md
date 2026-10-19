@@ -1,7 +1,7 @@
 ---
-title: KR UK US CA 및 유럽 고객의 TTFT 설계
+title: 익명 지역별 글로벌 Agent TTFT 설계
 description: TTFT 예산, streaming, 지역 측정과 Agent end-to-end 지연 최적화
-ms.date: 2026-10-16
+ms.date: 2026-10-19
 ---
 
 ## 무엇을 측정할 것인가
@@ -20,6 +20,9 @@ User TTFT =
 CLI의 `first_token_ms`는 Python 라우터 호출 시작부터 SDK의 첫 non-empty text delta까지입니다.
 국가별 사용자 last-mile이나 실제 Agent 검색·tool latency를 포함하지 않습니다.
 Global Standard의 리소스를 사용자 가까이에 놓아도 실제 추론 리전과 TTFT는 보장되지 않습니다.
+`simulate` 결과는 별도입니다. 모의 정책 시계를 사용하므로 결과의 `first_token_ms`를
+실환경 TTFT와 비교하면 안 됩니다. 실제 TTFT 임계치 평가는 `smoke --stream --ttft-budget-ms`로
+승인된 실제 배포에 대해 수행해야 하며 현재 공유 테스트에서는 실행하지 않았습니다.
 
 Azure Monitor에서는 절대 TTFT에 가까운 `AzureOpenAITimeToResponse`를 사용합니다.
 `AzureOpenAINormalizedTTFTInMS`는 prompt token 수로 정규화된 지표이므로
@@ -27,23 +30,24 @@ Azure Monitor에서는 절대 TTFT에 가까운 `AzureOpenAITimeToResponse`를 �
 
 ## 시장별 초기 선호
 
-| 사용자 | 첫 지역          | 다음 후보 예              | 비고 |
-|--------|------------------|---------------------------|------|
-| KR     | Korea Central    | East US 2, Canada East    | 아시아 내 다른 지원 지역도 실측 비교 |
-| UK     | UK South         | Sweden Central, East US 2 | EU 추가 전에는 US/CA 후보 |
-| US     | East US 2        | Canada East, UK South     | 미국 내 실제 사용자 분포 재측정 |
-| CA     | Canada East      | East US 2, UK South       | Canada Central과 비교 후 결정 |
-| EU     | Sweden Central   | UK South, East US 2       | 향후 추가, 데이터 처리 승인 우선 |
+| 사용자 프로필 | 첫 후보  | 다음 후보          | 비고                            |
+|---------------|----------|--------------------|---------------------------------|
+| Region01      | Region01 | Region03, Region04 | 승인된 인접 후보와 실측 비교     |
+| Region02      | Region02 | Region05, Region03 | Region05는 향후 확장             |
+| Region03      | Region03 | Region04, Region02 | 실제 사용자 분포 기준 재측정     |
+| Region04      | Region04 | Region03, Region02 | 다른 승인 후보와 비교 후 결정    |
+| Region05      | Region05 | Region02, Region03 | 향후 추가, 데이터 처리 승인 우선 |
 
-이는 거리 기반의 초기 가설이지 실측 latency ranking이 아닙니다.
-예제는 KR/UK/US/CA만 배포 대상으로 만들며 `--include-eu`로 Sweden Central을 추가합니다.
+이는 익명화된 구성 예시이지 실측 latency ranking이 아닙니다.
+실제 국가·Azure location과 별칭의 매핑은 비공개 운영 설정에서 관리합니다.
+예제는 Region01~Region04를 사용하며 `--include-expansion`으로 Region05를 추가합니다.
 각 시장에서 국가·ISP·업무·모델별 p50/p95/p99를 실측한 후 routing profile을 바꿉니다.
 지역 preference는 데이터 거버넌스 allowlist를 대신하지 않습니다.
 
 ## TTFT를 낮추는 실행 포인트
 
 1. 사용자 인접 Edge/Agent/gateway를 사용하고 불필요한 대륙 간 hop을 제거합니다.
-   gateway를 US 한 곳에 두고 KR 사용자가 항상 왕복하게 만들지 않습니다.
+   gateway를 Region03 한 곳에 두고 Region01 사용자가 항상 왕복하게 만들지 않습니다.
 2. SDK client와 HTTPS connection pool을 재사용합니다. Managed Identity token도 SDK의
    credential cache를 사용하고 매 요청 CLI 로그인이나 client 재생성을 하지 않습니다.
 3. streaming을 켜고 proxy/ingress/클라이언트의 response buffering을 끕니다.
@@ -77,7 +81,7 @@ Azure Monitor에서는 절대 TTFT에 가까운 `AzureOpenAITimeToResponse`를 �
 
 ## 실제 측정 절차
 
-1. KR/UK/US/CA의 실제 Agent hosting 위치와 사용자 접점에 probe를 둡니다.
+1. Region01~Region04의 실제 Agent hosting 위치와 사용자 접점에 probe를 둡니다.
    개발자 PC 한 대의 `--market` 변경은 국가별 측정이 아닙니다.
 2. 동일 prompt 길이, output 예산, 모델·버전과 동시성으로 비교합니다.
    cold-start, warm connection, prompt-cache warm/cold를 나눕니다.
@@ -88,8 +92,8 @@ Azure Monitor에서는 절대 TTFT에 가까운 `AzureOpenAITimeToResponse`를 �
 
 ```powershell
 uv run python -m foundry_resiliency smoke --config configs\single-subscription.local.json `
-  --model gpt-6-luna --market UK --stream --count 10 --confirm-paid `
-  --ttft-budget-ms 2000 --output artifacts\live-uk-luna.json
+  --model gpt-6-luna --market Region02 --stream --count 10 --confirm-paid `
+  --ttft-budget-ms 2000 --output artifacts\live-region02-luna.json
 ```
 
 `2000`은 사용자가 지정한 실험 임계치의 예이며 보장값이 아닙니다.

@@ -26,6 +26,8 @@ class Backend(Validated):
     version: str = Field(min_length=1)
     deployment: str = Field(min_length=1, pattern=r"^[A-Za-z0-9][A-Za-z0-9_.-]*$")
     region: str = Field(min_length=1)
+    subscription: str = Field(default="Subscription01", min_length=1)
+    azure_location: str | None = Field(default=None, min_length=1)
     base_url: str
     deployment_type: Literal["GlobalStandard"] = "GlobalStandard"
     priority: int = Field(default=0, ge=0)
