@@ -1,7 +1,7 @@
 ---
 title: Azure Foundry Global Standard Resiliency Architecture
 description: 여러 구독과 리전에 배포된 모델을 안정적으로 호출하기 위한 BP 아키텍처와 적용 지표
-ms.date: 2026-10-19
+ms.date: 2026-10-20
 ---
 
 ## BP 아키텍처 요약
@@ -232,7 +232,7 @@ uv run python -m pytest -q
 
 ## 검증 근거
 
-참고 수치는 2026-10-19의 Python router + OpenAI SDK HTTP/SSE 장애 주입 검증에서 집계했습니다.
+참고 수치는 2026-10-20(KST) 재실행한 Python router + OpenAI SDK HTTP/SSE 장애 주입 검증에서 집계했습니다.
 단일 구독과 별도 quota pool을 가정한 두 구독 구성에서 네 모델을 각각 요청 모델로 사용했습니다.
 모든 성공은 텍스트 응답 또는 stream 완료까지 확인했습니다.
 이 지표는 라우팅 연속성 검증값이며, 실제 운영 성능은 위 KPI로 측정합니다.
@@ -246,6 +246,8 @@ uv run python -m pytest -q
 전체 후보 장애·인증 오류·예산 초과에서는 명시적 실패가 합격 기준입니다.
 모의 정책 시계의 `first_token_ms`는 운영 TTFT 지표에 사용하지 않습니다.
 실제 Azure 호출은 이 참고 집계에 포함하지 않았습니다.
+추가 재검증에서도 비교 지표와 위 집계가 동일했으며,
+전체 회귀 테스트 92개와 N=8·16의 시도 상한·SVG 접점 검증을 함께 확인했습니다.
 
 * [단일 구독 HTTP 결과](docs/results/resilience-http.json)
 * [단일 구독 SSE 결과](docs/results/resilience-sse.json)

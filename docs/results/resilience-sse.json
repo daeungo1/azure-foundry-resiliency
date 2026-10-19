@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-19T04:45:42.619830+00:00",
+  "generated_at": "2026-10-19T23:14:14.662759+00:00",
   "mode": "simulation",
   "live_azure_calls": 0,
   "sdk_version": "2.54.0",
@@ -54,7 +54,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 585.8740999974543,
+      "elapsed_ms": 205.916500010062,
       "passed": true,
       "samples": [
         {
@@ -263,7 +263,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 171.2985999911325,
+      "elapsed_ms": 54.981599998427555,
       "passed": true,
       "samples": [
         {
@@ -468,7 +468,7 @@
       "degraded_responses": 0,
       "model_invariant": true,
       "first_token_ms": [],
-      "elapsed_ms": 35.42300000844989,
+      "elapsed_ms": 11.057000025175512,
       "passed": true,
       "samples": [
         {
@@ -615,7 +615,7 @@
       "degraded_responses": 0,
       "model_invariant": true,
       "first_token_ms": [],
-      "elapsed_ms": 39.33090000646189,
+      "elapsed_ms": 10.71950001642108,
       "passed": true,
       "samples": [
         {
@@ -762,7 +762,7 @@
       "degraded_responses": 0,
       "model_invariant": true,
       "first_token_ms": [],
-      "elapsed_ms": 48.82270000234712,
+      "elapsed_ms": 12.776199990184978,
       "passed": true,
       "samples": [
         {
@@ -909,7 +909,7 @@
       "degraded_responses": 0,
       "model_invariant": true,
       "first_token_ms": [],
-      "elapsed_ms": 40.050600000540726,
+      "elapsed_ms": 12.809400010155514,
       "passed": true,
       "samples": [
         {
@@ -1067,7 +1067,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 206.3761000026716,
+      "elapsed_ms": 55.906199995661154,
       "passed": true,
       "samples": [
         {
@@ -1283,7 +1283,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 170.77399999834597,
+      "elapsed_ms": 48.21309997350909,
       "passed": true,
       "samples": [
         {
@@ -1488,7 +1488,7 @@
       "degraded_responses": 0,
       "model_invariant": true,
       "first_token_ms": [],
-      "elapsed_ms": 70.99259999813512,
+      "elapsed_ms": 14.922200003638864,
       "passed": true,
       "samples": [
         {
@@ -1688,7 +1688,7 @@
       "first_token_ms": [
         0.0
       ],
-      "elapsed_ms": 33.98229999584146,
+      "elapsed_ms": 6.062400003429502,
       "passed": true,
       "samples": [
         {
@@ -1825,7 +1825,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 183.03269999159966,
+      "elapsed_ms": 38.67130001890473,
       "passed": true,
       "samples": [
         {
@@ -2034,7 +2034,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 185.29470000066794,
+      "elapsed_ms": 48.44399998546578,
       "passed": true,
       "samples": [
         {
@@ -2250,7 +2250,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 201.46939999540336,
+      "elapsed_ms": 46.98420001659542,
       "passed": true,
       "samples": [
         {
@@ -2487,7 +2487,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 203.35250000061933,
+      "elapsed_ms": 40.65179999452084,
       "passed": true,
       "samples": [
         {
@@ -2724,7 +2724,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 224.1286000062246,
+      "elapsed_ms": 52.39950001123361,
       "passed": true,
       "samples": [
         {
@@ -2978,7 +2978,7 @@
       "degraded_responses": 0,
       "model_invariant": true,
       "first_token_ms": [],
-      "elapsed_ms": 119.65529998997226,
+      "elapsed_ms": 34.599099977640435,
       "passed": true,
       "samples": [
         {
@@ -3220,7 +3220,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 191.68980000540614,
+      "elapsed_ms": 50.898399989819154,
       "passed": true,
       "samples": [
         {
@@ -3436,7 +3436,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 204.09489999292418,
+      "elapsed_ms": 47.830099996645004,
       "passed": true,
       "samples": [
         {
@@ -3641,7 +3641,7 @@
       "degraded_responses": 0,
       "model_invariant": true,
       "first_token_ms": [],
-      "elapsed_ms": 78.1410999916261,
+      "elapsed_ms": 18.529599998146296,
       "passed": true,
       "samples": [
         {
@@ -3850,7 +3850,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 196.90959999570623,
+      "elapsed_ms": 47.18510000384413,
       "passed": true,
       "samples": [
         {
@@ -4059,7 +4059,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 189.70039999112487,
+      "elapsed_ms": 53.20739999297075,
       "passed": true,
       "samples": [
         {
@@ -4268,7 +4268,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 185.63970000832342,
+      "elapsed_ms": 56.19269999442622,
       "passed": true,
       "samples": [
         {
@@ -4473,7 +4473,7 @@
       "degraded_responses": 0,
       "model_invariant": true,
       "first_token_ms": [],
-      "elapsed_ms": 41.195899990270846,
+      "elapsed_ms": 12.809400010155514,
       "passed": true,
       "samples": [
         {
@@ -4620,7 +4620,7 @@
       "degraded_responses": 0,
       "model_invariant": true,
       "first_token_ms": [],
-      "elapsed_ms": 28.64810000755824,
+      "elapsed_ms": 12.027100019622594,
       "passed": true,
       "samples": [
         {
@@ -4767,7 +4767,7 @@
       "degraded_responses": 0,
       "model_invariant": true,
       "first_token_ms": [],
-      "elapsed_ms": 38.083999999798834,
+      "elapsed_ms": 9.985099983168766,
       "passed": true,
       "samples": [
         {
@@ -4914,7 +4914,7 @@
       "degraded_responses": 0,
       "model_invariant": true,
       "first_token_ms": [],
-      "elapsed_ms": 39.35329998785164,
+      "elapsed_ms": 10.603300004731864,
       "passed": true,
       "samples": [
         {
@@ -5072,7 +5072,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 185.35390000033658,
+      "elapsed_ms": 63.99530000635423,
       "passed": true,
       "samples": [
         {
@@ -5288,7 +5288,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 189.04810000094585,
+      "elapsed_ms": 66.5828000055626,
       "passed": true,
       "samples": [
         {
@@ -5493,7 +5493,7 @@
       "degraded_responses": 0,
       "model_invariant": true,
       "first_token_ms": [],
-      "elapsed_ms": 67.86830000055488,
+      "elapsed_ms": 22.767200018279254,
       "passed": true,
       "samples": [
         {
@@ -5693,7 +5693,7 @@
       "first_token_ms": [
         0.0
       ],
-      "elapsed_ms": 24.048699997365475,
+      "elapsed_ms": 11.243800021475181,
       "passed": true,
       "samples": [
         {
@@ -5830,7 +5830,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 193.58269999793265,
+      "elapsed_ms": 60.790999996243045,
       "passed": true,
       "samples": [
         {
@@ -6039,7 +6039,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 183.560799996485,
+      "elapsed_ms": 56.13219999941066,
       "passed": true,
       "samples": [
         {
@@ -6255,7 +6255,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 205.559699999867,
+      "elapsed_ms": 63.7873999949079,
       "passed": true,
       "samples": [
         {
@@ -6492,7 +6492,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 192.83879999420606,
+      "elapsed_ms": 62.83300000359304,
       "passed": true,
       "samples": [
         {
@@ -6729,7 +6729,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 218.60629999719094,
+      "elapsed_ms": 84.53769999323413,
       "passed": true,
       "samples": [
         {
@@ -6983,7 +6983,7 @@
       "degraded_responses": 0,
       "model_invariant": true,
       "first_token_ms": [],
-      "elapsed_ms": 98.27430000586901,
+      "elapsed_ms": 42.44019999168813,
       "passed": true,
       "samples": [
         {
@@ -7225,7 +7225,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 168.08730000047944,
+      "elapsed_ms": 61.14739997428842,
       "passed": true,
       "samples": [
         {
@@ -7441,7 +7441,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 167.5363000103971,
+      "elapsed_ms": 59.49929999769665,
       "passed": true,
       "samples": [
         {
@@ -7646,7 +7646,7 @@
       "degraded_responses": 0,
       "model_invariant": true,
       "first_token_ms": [],
-      "elapsed_ms": 60.960399991017766,
+      "elapsed_ms": 24.791200004983693,
       "passed": true,
       "samples": [
         {
@@ -7855,7 +7855,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 163.46619999967515,
+      "elapsed_ms": 73.10529999085702,
       "passed": true,
       "samples": [
         {
@@ -8064,7 +8064,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 176.66310000640806,
+      "elapsed_ms": 62.401400005910546,
       "passed": true,
       "samples": [
         {
@@ -8273,7 +8273,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 174.88669999875128,
+      "elapsed_ms": 59.799600014230236,
       "passed": true,
       "samples": [
         {
@@ -8478,7 +8478,7 @@
       "degraded_responses": 0,
       "model_invariant": true,
       "first_token_ms": [],
-      "elapsed_ms": 39.61920000438113,
+      "elapsed_ms": 11.618899996392429,
       "passed": true,
       "samples": [
         {
@@ -8625,7 +8625,7 @@
       "degraded_responses": 0,
       "model_invariant": true,
       "first_token_ms": [],
-      "elapsed_ms": 37.54420000768732,
+      "elapsed_ms": 10.075600002892315,
       "passed": true,
       "samples": [
         {
@@ -8772,7 +8772,7 @@
       "degraded_responses": 0,
       "model_invariant": true,
       "first_token_ms": [],
-      "elapsed_ms": 35.196100012399256,
+      "elapsed_ms": 11.204999987967312,
       "passed": true,
       "samples": [
         {
@@ -8919,7 +8919,7 @@
       "degraded_responses": 0,
       "model_invariant": true,
       "first_token_ms": [],
-      "elapsed_ms": 36.804299990762956,
+      "elapsed_ms": 11.448699980974197,
       "passed": true,
       "samples": [
         {
@@ -9077,7 +9077,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 200.32519999949727,
+      "elapsed_ms": 57.96010000631213,
       "passed": true,
       "samples": [
         {
@@ -9293,7 +9293,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 176.8131999997422,
+      "elapsed_ms": 64.30969998473302,
       "passed": true,
       "samples": [
         {
@@ -9498,7 +9498,7 @@
       "degraded_responses": 0,
       "model_invariant": true,
       "first_token_ms": [],
-      "elapsed_ms": 56.963299997732975,
+      "elapsed_ms": 20.883599994704127,
       "passed": true,
       "samples": [
         {
@@ -9698,7 +9698,7 @@
       "first_token_ms": [
         0.0
       ],
-      "elapsed_ms": 29.366600007051602,
+      "elapsed_ms": 10.051699995528907,
       "passed": true,
       "samples": [
         {
@@ -9835,7 +9835,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 196.13710000703577,
+      "elapsed_ms": 62.33460002113134,
       "passed": true,
       "samples": [
         {
@@ -10044,7 +10044,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 174.54480000014883,
+      "elapsed_ms": 71.61340001039207,
       "passed": true,
       "samples": [
         {
@@ -10260,7 +10260,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 211.85020000848453,
+      "elapsed_ms": 71.12700000288896,
       "passed": true,
       "samples": [
         {
@@ -10497,7 +10497,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 204.9093000096036,
+      "elapsed_ms": 70.94370000413619,
       "passed": true,
       "samples": [
         {
@@ -10734,7 +10734,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 203.42420000815764,
+      "elapsed_ms": 69.79349997709505,
       "passed": true,
       "samples": [
         {
@@ -10988,7 +10988,7 @@
       "degraded_responses": 0,
       "model_invariant": true,
       "first_token_ms": [],
-      "elapsed_ms": 135.57589999982156,
+      "elapsed_ms": 36.965500010410324,
       "passed": true,
       "samples": [
         {
@@ -11230,7 +11230,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 184.60100000083912,
+      "elapsed_ms": 57.891700009349734,
       "passed": true,
       "samples": [
         {
@@ -11446,7 +11446,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 180.65460000070743,
+      "elapsed_ms": 51.14100000355393,
       "passed": true,
       "samples": [
         {
@@ -11651,7 +11651,7 @@
       "degraded_responses": 0,
       "model_invariant": true,
       "first_token_ms": [],
-      "elapsed_ms": 67.31219998619054,
+      "elapsed_ms": 17.780400026822463,
       "passed": true,
       "samples": [
         {
@@ -11860,7 +11860,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 194.32339999184478,
+      "elapsed_ms": 45.65109999384731,
       "passed": true,
       "samples": [
         {
@@ -12069,7 +12069,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 192.33299999905284,
+      "elapsed_ms": 40.88439999031834,
       "passed": true,
       "samples": [
         {
@@ -12278,7 +12278,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 186.88929999188986,
+      "elapsed_ms": 47.33179998584092,
       "passed": true,
       "samples": [
         {
@@ -12483,7 +12483,7 @@
       "degraded_responses": 0,
       "model_invariant": true,
       "first_token_ms": [],
-      "elapsed_ms": 43.75419999996666,
+      "elapsed_ms": 8.777799987001345,
       "passed": true,
       "samples": [
         {
@@ -12630,7 +12630,7 @@
       "degraded_responses": 0,
       "model_invariant": true,
       "first_token_ms": [],
-      "elapsed_ms": 38.0074999993667,
+      "elapsed_ms": 8.78299999749288,
       "passed": true,
       "samples": [
         {
@@ -12777,7 +12777,7 @@
       "degraded_responses": 0,
       "model_invariant": true,
       "first_token_ms": [],
-      "elapsed_ms": 40.592300007119775,
+      "elapsed_ms": 10.806100006448105,
       "passed": true,
       "samples": [
         {
@@ -12924,7 +12924,7 @@
       "degraded_responses": 0,
       "model_invariant": true,
       "first_token_ms": [],
-      "elapsed_ms": 36.37310001067817,
+      "elapsed_ms": 8.37259998661466,
       "passed": true,
       "samples": [
         {
@@ -13082,7 +13082,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 203.10869999229908,
+      "elapsed_ms": 48.29930001869798,
       "passed": true,
       "samples": [
         {
@@ -13298,7 +13298,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 207.0733000000473,
+      "elapsed_ms": 46.78629999398254,
       "passed": true,
       "samples": [
         {
@@ -13503,7 +13503,7 @@
       "degraded_responses": 0,
       "model_invariant": true,
       "first_token_ms": [],
-      "elapsed_ms": 61.760600001434796,
+      "elapsed_ms": 16.034299973398447,
       "passed": true,
       "samples": [
         {
@@ -13703,7 +13703,7 @@
       "first_token_ms": [
         0.0
       ],
-      "elapsed_ms": 34.24090000044089,
+      "elapsed_ms": 8.082299988018349,
       "passed": true,
       "samples": [
         {
@@ -13840,7 +13840,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 289.9762000015471,
+      "elapsed_ms": 42.65999997733161,
       "passed": true,
       "samples": [
         {
@@ -14049,7 +14049,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 215.3041999990819,
+      "elapsed_ms": 49.31840000790544,
       "passed": true,
       "samples": [
         {
@@ -14265,7 +14265,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 234.78179999801796,
+      "elapsed_ms": 45.06890001357533,
       "passed": true,
       "samples": [
         {
@@ -14502,7 +14502,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 205.26699999754783,
+      "elapsed_ms": 44.62609998881817,
       "passed": true,
       "samples": [
         {
@@ -14739,7 +14739,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 228.4765999938827,
+      "elapsed_ms": 74.86559997778386,
       "passed": true,
       "samples": [
         {
@@ -14993,7 +14993,7 @@
       "degraded_responses": 0,
       "model_invariant": true,
       "first_token_ms": [],
-      "elapsed_ms": 123.00429999595508,
+      "elapsed_ms": 37.63679999974556,
       "passed": true,
       "samples": [
         {
@@ -15235,7 +15235,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 197.95570000133011,
+      "elapsed_ms": 49.61060002096929,
       "passed": true,
       "samples": [
         {
@@ -15451,7 +15451,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 192.6101999997627,
+      "elapsed_ms": 50.74310000054538,
       "passed": true,
       "samples": [
         {
@@ -15656,7 +15656,7 @@
       "degraded_responses": 0,
       "model_invariant": true,
       "first_token_ms": [],
-      "elapsed_ms": 65.21680000878405,
+      "elapsed_ms": 17.612099996767938,
       "passed": true,
       "samples": [
         {
@@ -15865,7 +15865,7 @@
         0.0,
         0.0
       ],
-      "elapsed_ms": 187.7923000138253,
+      "elapsed_ms": 49.27640000823885,
       "passed": true,
       "samples": [
         {
