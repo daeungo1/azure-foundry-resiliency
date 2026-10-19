@@ -14,8 +14,8 @@
     <tspan x="120" dy="0">requested model</tspan>
     <tspan x="120" dy="20">recorded</tspan>
   </text>
-  <path d="M210 198H264" class="a"/>
-  <rect x="270" y="120" width="300" height="170" rx="12" fill="#e5f0ff" stroke="#4384b9"/>
+  <path d="M210 198H264" class="a" data-target="requested-model"/>
+  <rect id="requested-model" x="270" y="120" width="300" height="170" rx="12" fill="#e5f0ff" stroke="#4384b9"/>
   <text x="420" y="158" text-anchor="middle" class="l">Requested model group</text>
   <text x="420" y="188" text-anchor="middle" class="n">gpt-6.1-sol, pinned version</text>
   <text x="420" y="214" text-anchor="middle" class="n">
@@ -23,22 +23,22 @@
     <tspan x="420" dy="20">Region03 / Region04 candidates</tspan>
   </text>
   <text x="420" y="266" text-anchor="middle" class="n">All unavailable within time budget</text>
-  <path d="M570 198H644" class="a"/>
-  <rect x="650" y="148" width="195" height="100" rx="12" fill="#fff0d8" stroke="#c9994c"/>
-  <text x="747" y="182" text-anchor="middle" class="l">Approval gate</text>
-  <text x="747" y="207" text-anchor="middle" class="n">allowlist + request opt-in</text>
-  <text x="747" y="230" text-anchor="middle" class="n">capabilities + quality</text>
-  <path d="M845 198H904" class="a"/>
-  <rect x="910" y="120" width="260" height="170" rx="12" fill="#e3f3ed" stroke="#4d957a"/>
+  <path d="M570 198H644" class="a" data-target="approval-gate"/>
+  <rect id="approval-gate" x="650" y="148" width="195" height="100" rx="12" fill="#fff0d8" stroke="#c9994c"/>
+  <text x="747.5" y="182" text-anchor="middle" class="l">Approval gate</text>
+  <text x="747.5" y="207" text-anchor="middle" class="n">allowlist + request opt-in</text>
+  <text x="747.5" y="230" text-anchor="middle" class="n">capabilities + quality</text>
+  <path d="M845 198H904" class="a" data-target="approved-models"/>
+  <rect id="approved-models" x="910" y="120" width="260" height="170" rx="12" fill="#e3f3ed" stroke="#4d957a"/>
   <text x="1040" y="155" text-anchor="middle" class="l">Approved model groups</text>
   <text x="1040" y="185" text-anchor="middle" class="n">gpt-6-luna</text>
   <text x="1040" y="214" text-anchor="middle" class="n">gpt-5.6-terra</text>
   <text x="1040" y="243" text-anchor="middle" class="n">gpt-5.6-luna</text>
   <text x="1040" y="271" text-anchor="middle" class="n">each has regional candidates</text>
-  <path d="M747 248V327" class="a"/>
-  <text x="770" y="305" class="n">no approval / no time left</text>
-  <rect x="620" y="333" width="300" height="48" rx="10" fill="#fde9e9" stroke="#bd7777"/>
-  <text x="770" y="363" text-anchor="middle" class="l">Explicit bounded failure</text>
+  <path d="M747.5 248V327" class="a" data-target="bounded-failure"/>
+  <text x="770" y="312" class="n">no approval / no time left</text>
+  <rect id="bounded-failure" x="597.5" y="333" width="300" height="48" rx="10" fill="#fde9e9" stroke="#bd7777"/>
+  <text x="747.5" y="363" text-anchor="middle" class="l">Explicit bounded failure</text>
   <rect x="30" y="418" width="1140" height="109" rx="12" fill="#fff" stroke="#7aa2bf"/>
   <text x="55" y="451" class="l">Response: requested_model + selected_model + selected_version + degraded + attempts</text>
   <text x="55" y="480" class="n">FIRST NON-EMPTY TEXT DELTA: stream committed. Disconnects are surfaced; no automatic region/model replay.</text>

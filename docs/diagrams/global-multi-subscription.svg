@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="850" viewBox="0 0 1280 850" role="img" aria-labelledby="title desc">
-  <title id="title">Two-subscription reference architecture; virtual tests only</title>
-  <desc id="desc">Subscription01 and Subscription02 are virtual groups with separate assumed model quota pools in the local tests. Each group has Region01 through RegionN. The real router and SDK use mock HTTP and SSE; 640 requests succeeded across subscription-level fault scenarios. Real provisioning, RBAC, capacity isolation and global latency are not verified. Shared global inference capacity remains a production concern.</desc>
+  <title id="title">Global Standard BP: multi-subscription multi-region model routing</title>
+  <desc id="desc">Recommended architecture for regional Agents routing across Subscription01 and Subscription02 model pools. Check each model's quota Scope, reserve request and token budgets, prefer healthy same-model endpoints, and use approved model fallback within deadlines. Assign the caller identity access on each target resource. Separate approved quota does not reserve global inference capacity.</desc>
   <defs>
     <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0 0L8 3L0 6Z" fill="#365977"/></marker>
     <style>
@@ -8,26 +8,29 @@
       .label{font-size:17px;font-weight:600} .note{font-size:14px}
       .box{fill:#fff;stroke:#7aa2bf;stroke-width:1.5;rx:12}
       .line{fill:none;stroke:#365977;stroke-width:2;marker-end:url(#arrow)}
+      .wire{fill:none;stroke:#365977;stroke-width:2}
     </style>
   </defs>
   <rect width="1280" height="850" fill="#f4f8fc"/>
-  <text x="40" y="42" class="heading">TWO-SUBSCRIPTION REFERENCE | virtual tests verified, no live deployment</text>
-  <text x="40" y="70" class="note">Model quota pools are separate by assumption. Real RBAC, quota approval, capacity isolation and TTFT are not verified.</text>
+  <text x="40" y="42" class="heading">GLOBAL STANDARD BP | multi-subscription, multi-region resiliency</text>
+  <text x="40" y="70" class="note">Prefer healthy same-model pools, respect quota Scope, and use approved model fallback within a bounded deadline.</text>
   <rect x="40" y="110" width="300" height="82" class="box"/>
   <text x="190" y="142" text-anchor="middle" class="label">Region01-04 users</text>
   <text x="190" y="168" text-anchor="middle" class="note">Region05 expansion | nearby Agents</text>
-  <path d="M340 151H414" class="line"/>
-  <rect x="420" y="110" width="820" height="82" rx="12" fill="#d8eee8" stroke="#518c79"/>
+  <path d="M340 151H414" class="line" data-target="regional-router"/>
+  <rect id="regional-router" x="420" y="110" width="820" height="82" rx="12" fill="#d8eee8" stroke="#518c79"/>
   <text x="830" y="142" text-anchor="middle" class="label">Model-aware router / regional gateway</text>
-  <text x="830" y="168" text-anchor="middle" class="note">Same-model nearby candidates, then approved model fallback; no replay after first text</text>
-  <path d="M830 192V239H320V280M830 239H960V280" class="line"/>
-  <text x="40" y="251" class="note">Managed Identity: Cognitive Services OpenAI User on each target resource</text>
-  <rect x="40" y="285" width="560" height="302" rx="15" fill="#e5f0ff" stroke="#4384b9" stroke-width="2"/>
-  <rect x="680" y="285" width="560" height="302" rx="15" fill="#e3f3ed" stroke="#4d957a" stroke-width="2"/>
-  <text x="65" y="319" class="label">Subscription01 | simulated quota pool</text>
-  <text x="705" y="319" class="label">Subscription02 | simulated quota pool</text>
+  <text x="830" y="168" text-anchor="middle" class="note">One backend per attempt: same-model first, then approved fallback; no replay after first text</text>
+  <path d="M830 192V239" class="wire"/>
+  <path d="M830 239H320V279" class="line" data-target="subscription-01"/>
+  <path d="M830 239H960V279" class="line" data-target="subscription-02"/>
+  <text x="40" y="225" class="note">Managed Identity: Cognitive Services OpenAI User on each target resource</text>
+  <rect id="subscription-01" x="40" y="285" width="560" height="302" rx="15" fill="#e5f0ff" stroke="#4384b9" stroke-width="2"/>
+  <rect id="subscription-02" x="680" y="285" width="560" height="302" rx="15" fill="#e3f3ed" stroke="#4d957a" stroke-width="2"/>
+  <text x="65" y="319" class="label">Subscription01 | model quota pools</text>
+  <text x="705" y="319" class="label">Subscription02 | model quota pools</text>
   <text x="65" y="347" class="note">Global Standard, pinned model versions</text>
-  <text x="705" y="347" class="note">Same models/versions; independent pool assumption</text>
+  <text x="705" y="347" class="note">Pinned model/version; approved quota per Scope</text>
   <g text-anchor="middle">
     <rect x="65" y="370" width="245" height="58" class="box"/><text x="187" y="405" class="label">Region01 / Region02</text>
     <rect x="330" y="370" width="245" height="58" class="box"/><text x="452" y="405" class="label">Region03 / Region04</text>
@@ -42,10 +45,11 @@
   <text x="705" y="535" class="note">Contributor alone is not Entra inference permission.</text>
   <text x="65" y="563" class="note">Regional Scope still applies to non-onboarded models.</text>
   <text x="705" y="563" class="note">Role assignment requires a target-scope administrator.</text>
-  <path d="M320 587V630H640V664M960 587V630H640" class="line"/>
-  <rect x="180" y="668" width="920" height="88" rx="14" fill="#fff0d8" stroke="#c9994c" stroke-width="2"/>
+  <path d="M320 587V630M960 587V630M320 630H960" class="wire"/>
+  <path d="M640 630V662" class="line" data-target="inference-capacity"/>
+  <rect id="inference-capacity" x="180" y="668" width="920" height="88" rx="14" fill="#fff0d8" stroke="#c9994c" stroke-width="2"/>
   <text x="640" y="702" text-anchor="middle" class="label">Shared Microsoft-managed global inference capacity</text>
-  <text x="640" y="730" text-anchor="middle" class="note">More approved quota is not capacity isolation, reserved throughput or guaranteed lower TTFT.</text>
+  <text x="640" y="730" text-anchor="middle" class="note">Manage approved quota separately from shared capacity; measure TTFT and maintain recovery budgets.</text>
   <text x="40" y="798" class="note">Usage-tier latency guidance may aggregate all subscriptions and regions per model within a tenant.</text>
   <text x="40" y="824" class="note">Keep per-subscription cost controls, fairness, audit, data-governance rules and bounded retry budgets.</text>
 </svg>

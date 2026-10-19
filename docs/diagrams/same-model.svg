@@ -11,19 +11,19 @@
   <rect x="30" y="150" width="180" height="100" rx="12" fill="#fff" stroke="#7aa2bf"/>
   <text x="120" y="190" text-anchor="middle" class="l">Agent request</text>
   <text x="120" y="217" text-anchor="middle" class="n">fallback disabled</text>
-  <path d="M210 200H264" class="a"/>
-  <rect x="270" y="137" width="230" height="126" rx="12" fill="#e5f0ff" stroke="#4384b9"/>
+  <path d="M210 200H264" class="a" data-target="primary-endpoint"/>
+  <rect id="primary-endpoint" x="270" y="137" width="230" height="126" rx="12" fill="#e5f0ff" stroke="#4384b9"/>
   <text x="385" y="174" text-anchor="middle" class="l">Nearby endpoint</text>
   <text x="385" y="202" text-anchor="middle" class="n">same model/version</text>
   <text x="385" y="230" text-anchor="middle" class="n">429 / transient error</text>
-  <path d="M500 200H604" class="a"/>
+  <path d="M500 200H604" class="a" data-target="secondary-endpoint"/>
   <text x="552" y="177" text-anchor="middle" class="n">cooldown</text>
-  <rect x="610" y="137" width="230" height="126" rx="12" fill="#e3f3ed" stroke="#4d957a"/>
+  <rect id="secondary-endpoint" x="610" y="137" width="230" height="126" rx="12" fill="#e3f3ed" stroke="#4d957a"/>
   <text x="725" y="174" text-anchor="middle" class="l">Next healthy region</text>
   <text x="725" y="202" text-anchor="middle" class="n">same model/version</text>
   <text x="725" y="230" text-anchor="middle" class="n">respect headroom</text>
-  <path d="M840 200H924" class="a"/>
-  <rect x="930" y="137" width="240" height="126" rx="12" fill="#fff" stroke="#7aa2bf"/>
+  <path d="M840 200H924" class="a" data-target="completion"/>
+  <rect id="completion" x="930" y="137" width="240" height="126" rx="12" fill="#fff" stroke="#7aa2bf"/>
   <text x="1050" y="174" text-anchor="middle" class="l">Success or explicit failure</text>
   <text x="1050" y="202" text-anchor="middle" class="n">bounded total attempts</text>
   <text x="1050" y="230" text-anchor="middle" class="n">bounded first-response deadline</text>

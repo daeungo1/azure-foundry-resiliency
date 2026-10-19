@@ -16,9 +16,9 @@
   "checks": [
     {
       "name": "python_tests",
-      "command": ".\\.venv\\Scripts\\python.exe -m pytest tests -q --tb=short --junitxml=artifacts\\publication-pytest.xml",
+      "command": ".\\.venv\\Scripts\\python.exe -m pytest tests -q --tb=short --junitxml=artifacts\\svg-precision-pytest.xml",
       "status": "passed",
-      "tests": 91,
+      "tests": 92,
       "failures": 0
     },
     {
@@ -60,7 +60,7 @@
     },
     {
       "name": "svg_render",
-      "method": "Chromium getBBox checks against each owning box, plus canvas bounds and same-box text overlap; SVG XML/accessibility tests",
+      "method": "Font-ready SVG box/canvas/overlap, orthogonal stroke/arrowhead-to-text intersections and explicit arrow target-port regression checks",
       "status": "passed",
       "files": 4,
       "fonts": ["Segoe UI", "Arial", "sans-serif"],
@@ -69,6 +69,15 @@
       "boxed_label_checks": 231,
       "canvas_label_checks": 279,
       "font_loading": "Await document.fonts.ready before geometry measurements",
+      "directed_arrow_paths": 16,
+      "arrow_port_checks": 48,
+      "orthogonal_segment_checks": 87,
+      "arrowhead_checks": 48,
+      "target_port_gap": 6,
+      "minimum_wire_text_clearance": 3,
+      "compound_arrow_paths": 0,
+      "wire_text_collisions": 0,
+      "connector_regression": "tests/test_assets.py::test_svg_arrows_have_single_paths_and_explicit_target_ports",
       "measurement_units": "SVG user units",
       "minimum_horizontal_padding": 12,
       "minimum_vertical_padding": 8,
@@ -202,8 +211,8 @@
     "limits": "Does not verify real subscription creation, RBAC, actual quota allocation, shared-pool capacity isolation or global TTFT."
   },
   "previous_remote_ci": {
-    "url": "https://github.com/daeungo1/azure-foundry-resiliency/actions/runs/39202523808",
-    "commit": "8fc374a5bd8e751e454a7bd8bad019d6a7b6c26a",
+    "url": "https://github.com/daeungo1/azure-foundry-resiliency/actions/runs/39207567193",
+    "commit": "83e2b93d110613e349307c9dc3fee71590e63331",
     "status": "success",
     "applies_to_current_results": false
   },
@@ -214,6 +223,46 @@
     "expected_failures": 1192,
     "live_azure_calls": 0,
     "timing_mode": "virtual_policy_clock"
+  },
+  "bp_reference_metrics": {
+    "measurement_type": "controlled_fault_injection_comparison",
+    "measured_on": "2026-10-19",
+    "models": 4,
+    "regions": 4,
+    "protocols": ["http", "sse"],
+    "requests_per_model_per_protocol_per_configuration": 10,
+    "live_customer_sla_measurement": false,
+    "comparisons": {
+      "same_model_429": {
+        "control_configuration": "Single subscription, same-model routing",
+        "bp_configuration": "Single subscription, approved mixed-model routing",
+        "control_successes": 0,
+        "bp_successes": 80,
+        "requests_per_configuration": 80
+      },
+      "same_model_503": {
+        "control_configuration": "Single subscription, same-model routing",
+        "bp_configuration": "Single subscription, approved mixed-model routing",
+        "control_successes": 0,
+        "bp_successes": 80,
+        "requests_per_configuration": 80
+      },
+      "headroom": {
+        "control_configuration": "Single subscription, same-model routing",
+        "bp_configuration": "Two subscriptions, same-model routing",
+        "control_successes": 8,
+        "bp_successes": 80,
+        "requests_per_configuration": 80,
+        "quota_assumption": "Separate per-subscription model/version quota pools"
+      }
+    },
+    "cooldown_observation": {
+      "scenario": "same_model_429",
+      "configuration": "Single subscription, approved mixed-model routing",
+      "same_router_request_attempts": [5, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      "interpretation": "Later requests reuse cooldown state; this is not a production throughput or latency comparison."
+    },
+    "production_follow_up": ["deadline success rate", "user TTFT p50/p95/p99", "final 429 rate", "attempt amplification", "model quality", "cost per successful request"]
   },
   "validation_findings_resolved": [
     {

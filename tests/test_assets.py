@@ -71,6 +71,63 @@ def test_svgs_are_accessible_static_and_self_contained() -> None:
         assert "href=" not in text
 
 
+def test_svg_arrows_have_single_paths_and_explicit_target_ports() -> None:
+    def vertices(data: str) -> list[tuple[float, float]]:
+        tokens = iter(re.findall(r"[A-Za-z]|-?\d+(?:\.\d+)?", data))
+        points = []
+        x = y = 0.0
+        for command in tokens:
+            assert command in {"M", "H", "V"}, f"Review non-orthogonal connector: {data}"
+            if command == "M":
+                x, y = float(next(tokens)), float(next(tokens))
+            elif command == "H":
+                x = float(next(tokens))
+            else:
+                y = float(next(tokens))
+            points.append((x, y))
+        return points
+
+    arrows = 0
+    for path in (ROOT / "docs" / "diagrams").glob("*.svg"):
+        root = ElementTree.parse(path).getroot()
+        named = [element for element in root.iter() if element.get("id")]
+        by_id = {element.attrib["id"]: element for element in named}
+        assert len(by_id) == len(named), f"Duplicate SVG IDs: {path.name}"
+        for element in root.iter("{http://www.w3.org/2000/svg}path"):
+            if not set(element.get("class", "").split()) & {"line", "a"}:
+                continue
+            arrows += 1
+            data = element.attrib["d"]
+            assert len(re.findall("[Mm]", data)) == 1, (
+                f"{path.name}: each arrow needs its own continuous path: {data}"
+            )
+            target_id = element.get("data-target")
+            assert target_id is not None and target_id in by_id, (
+                f"{path.name}: missing arrow target: {data}"
+            )
+            target = by_id[target_id]
+            assert target.tag == "{http://www.w3.org/2000/svg}rect"
+            x, y, width, height = (
+                float(target.attrib[name]) for name in ("x", "y", "width", "height")
+            )
+            points = vertices(data)
+            (before_x, before_y), (end_x, end_y) = points[-2:]
+            if end_x > before_x and end_y == before_y:
+                assert end_x == pytest.approx(x - 6)
+                assert y + 8 <= end_y <= y + height - 8
+            elif end_x < before_x and end_y == before_y:
+                assert end_x == pytest.approx(x + width + 6)
+                assert y + 8 <= end_y <= y + height - 8
+            elif end_y > before_y and end_x == before_x:
+                assert end_y == pytest.approx(y - 6)
+                assert x + 12 <= end_x <= x + width - 12
+            else:
+                assert end_x == before_x and end_y < before_y
+                assert end_y == pytest.approx(y + height + 6)
+                assert x + 12 <= end_x <= x + width - 12
+    assert arrows == 16
+
+
 def test_markdown_local_links_resolve() -> None:
     documents = [ROOT / "README.md", *(ROOT / "docs").glob("*.md")]
     missing = []
@@ -122,50 +179,71 @@ def test_persisted_evidence_contains_verified_outputs_and_real_attempts(protocol
 
 
 def test_readme_success_tables_match_persisted_evidence() -> None:
-    rows = [
+    single_rows = [
         row
         for protocol in ("http", "sse")
         for row in json.loads(
             (ROOT / "docs" / "results" / f"resilience-{protocol}.json").read_text(encoding="utf-8")
         )["scenarios"]
     ]
+    two_rows = [
+        row
+        for protocol in ("http", "sse")
+        for row in json.loads(
+            (ROOT / "docs" / "results" / f"two-subscriptions-{protocol}.json").read_text(
+                encoding="utf-8"
+            )
+        )["scenarios"]
+    ]
     text = (ROOT / "README.md").read_text(encoding="utf-8")
+    assert "reference implementation입니다." not in text
+    assert text.index("## 권장 BP 아키텍처") < text.index("## 적용 효과와 참고 지표")
+    assert text.index("## 적용 효과와 참고 지표") < text.index("## 검증 근거")
+    effect_section = text.split("## 적용 효과와 참고 지표")[1].split("## 운영 적용")[0]
+    assert "장애 주입" in effect_section and "운영 SLA" in effect_section
     table = {
-        cells[0].strip("`"): cells[1:]
+        cells[0]: cells[1:]
         for line in text.splitlines()
-        if line.startswith("| `")
+        if line.startswith("|")
         if (cells := [cell.strip() for cell in line.split("|")[1:-1]])
     }
-    for scenario in {row["scenario"] for row in rows}:
-        for index, mode in enumerate(("same", "mixed")):
-            selected = [
-                row for row in rows if row["scenario"] == scenario and row["routing_mode"] == mode
-            ]
-            expected = (
-                f"{sum(row['successes'] for row in selected)}/"
-                f"{sum(row['requests'] for row in selected)}"
-            )
-            assert table[scenario][index] == expected
-    for model in TARGET_MODELS:
-        model_cells = next(
-            [cell.strip() for cell in line.split("|")[1:-1]]
-            for line in text.splitlines()
-            if line.startswith(f"| {model} ") and "20/20" in line
-        )
-        for index, scenario in enumerate(
-            ("same_model_429", "same_model_503", "fallback_model_429")
-        ):
-            selected = [
-                row
-                for row in rows
-                if row["requested_model"] == model
-                and row["scenario"] == scenario
-                and row["routing_mode"] == "mixed"
-            ]
-            assert model_cells[index + 1] == (
-                f"{sum(row['successes'] for row in selected)}/"
-                f"{sum(row['requests'] for row in selected)}"
-            )
+    manifest = json.loads((ROOT / "docs" / "verification.json").read_text(encoding="utf-8"))
+    assert not manifest["bp_reference_metrics"]["live_customer_sla_measurement"]
+    for label, scenario in (
+        ("모델 전체 429", "same_model_429"),
+        ("모델 전체 503", "same_model_503"),
+        ("요청 예산 소진", "headroom"),
+    ):
+        baseline = [
+            row
+            for row in single_rows
+            if row["scenario"] == scenario and row["routing_mode"] == "same"
+        ]
+        target_rows = two_rows if scenario == "headroom" else single_rows
+        target_mode = "same" if scenario == "headroom" else "mixed"
+        target = [
+            row
+            for row in target_rows
+            if row["scenario"] == scenario and row["routing_mode"] == target_mode
+        ]
+        assert table[label][:2] == [
+            f"{sum(row['successes'] for row in selected)}/"
+            f"{sum(row['requests'] for row in selected)}"
+            for selected in (baseline, target)
+        ]
+        recorded = manifest["bp_reference_metrics"]["comparisons"][scenario]
+        assert recorded["control_successes"] == sum(row["successes"] for row in baseline)
+        assert recorded["bp_successes"] == sum(row["successes"] for row in target)
+        assert recorded["requests_per_configuration"] == sum(row["requests"] for row in target)
+    rows = [
+        row
+        for row in single_rows
+        if row["scenario"] == "same_model_429" and row["routing_mode"] == "mixed"
+    ]
+    assert all(
+        [len(sample["attempts"]) for sample in row["samples"]] == [5] + [1] * 9 for row in rows
+    )
+    assert "5회" in effect_section and "1회" in effect_section
 
 
 @pytest.mark.parametrize("protocol", ["http", "sse"])
@@ -215,25 +293,19 @@ def test_two_subscription_readme_table_matches_evidence() -> None:
         )["scenarios"]
     ]
     text = (ROOT / "README.md").read_text(encoding="utf-8")
-    section = text.split("## 실제 구독 없이 두 구독을 가정한 테스트")[1].split("## 읽는 순서")[0]
-    cells = [
-        [cell.strip() for cell in line.split("|")[1:-1]]
-        for line in section.splitlines()
-        if line.startswith("|")
-    ]
-    for scenario in (
+    conditions = {
         "subscription_429",
         "subscription_503",
         "subscription_request_headroom",
         "subscription_token_headroom",
-        "correlated_429",
-    ):
-        selected = [row for row in rows if row["scenario"] == scenario]
-        observed = (
-            f"{sum(row['successes'] for row in selected)}/"
-            f"{sum(row['requests'] for row in selected)}"
-        )
-        assert next(row[2] for row in cells if len(row) == 4 and row[1] == scenario) == observed
+    }
+    selected = [row for row in rows if row["scenario"] in conditions]
+    observed = (
+        f"{sum(row['successes'] for row in selected)}/{sum(row['requests'] for row in selected)}"
+    )
+    assert f"**{observed}**" in text
+    assert sum(row["degraded_responses"] for row in selected) == 0
+    assert "--subscriptions 2 --regions 4" in text
     single_rows = [
         row
         for protocol in ("http", "sse")

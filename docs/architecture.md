@@ -1,27 +1,28 @@
 ---
-title: 글로벌 Agent의 동일 모델·혼합 모델 및 다중 구독 아키텍처
-description: 설계 경계, routing 순서, quota 장애 도메인과 운영 gateway 확장
+title: 글로벌 Agent의 다중 구독·멀티 리전 Resiliency BP
+description: 안정적인 모델 호출을 위한 quota·장애 도메인 분리, 라우팅과 운영 구성
 ms.date: 2026-10-19
 ---
 
-## 설계 결정
+## 설계 요약
 
-실행 가능한 Python reference router를 기본으로 하고 APIM과 LiteLLM을 운영 대안으로 제시합니다.
-APIM 중심안은 중앙 정책·거버넌스에, LiteLLM 중심안은 여러 공급자 routing에 유리하지만
-이 lab에는 필요 이상의 배포·운영 의존성을 추가합니다.
+Global Standard 모델의 안정적인 호출은 endpoint 상태, quota pool, 모델 품질을 분리하여 설계합니다.
+리전별 endpoint 장애에는 동일 모델의 정상 후보를, 구독의 quota 압력에는 별도 승인 quota를 가진 후보를,
+모델 전체의 사용 불가에는 업무 품질을 승인한 타 모델을 사용합니다.
 
-현재 단일 구독에서도 엔드포인트 장애·연결 오류 대응을 테스트할 수 있습니다.
-다중 구독은 별도 승인 quota를 사용하는 확장안입니다. 두 가지를 혼동하지 않습니다.
-비용이 발생하는 배포, 실제 모델 호출, remote GitHub 게시를 자동 수행하지 않습니다.
+운영 권장 구성은 지역별 gateway에서 요청을 처리하고, 정책·모델 승인·사용자 공정성을 중앙에서 관리하는 형태입니다.
+APIM은 중앙 거버넌스와 backend pool 운영에 활용하고,
+Python router는 application의 명시적인 모델 전환·시간 예산 정책에 적용할 수 있습니다.
+LiteLLM 등 별도 router를 선택하는 경우에도 retry와 quota 예산의 소유 계층은 하나로 정합니다.
 
 ## 글로벌 요청 경로
 
-![현재 단일 구독 및 글로벌 진입점](diagrams/global-single-subscription.svg)
+![권장 다중 구독·멀티 리전 BP](diagrams/global-multi-subscription.svg)
 
-기본 구성은 단일 구독입니다. 다중 구독의 실제 구성·권한 요청·실환경 테스트는 보류합니다.
-[다중 구독 SVG](diagrams/global-multi-subscription.svg)는 향후 참고안으로만 유지합니다.
-실제 구독 작업과 별개로, 두 가상 구독과 Region01~RegionN의 모의 테스트를 지원합니다.
-두 구독의 별도 quota pool은 시뮬레이션 가정이며 실제 capacity 독립성을 의미하지 않습니다.
+Subscription01·02에 Region01~RegionN의 모델 pool을 두고, 사용자 인접 진입점에서 정상 후보를 선택합니다.
+구독별 quota 할당과 endpoint별 circuit 상태를 따로 관리합니다.
+처음에는 [단일 구독 구성](diagrams/global-single-subscription.svg)에서 같은 정책을 적용하고,
+별도 승인 quota가 준비되면 모델·API 계약을 유지하면서 후보 pool을 확장할 수 있습니다.
 
 1. Region01, Region02, Region03, Region04 사용자를 Front Door 등 전역 진입점에서 인접한 지역 Agent/gateway로 연결합니다.
 2. 각 지역에서 인증, tenant/사용자별 admission, 짧고 제한된 대기열을 적용합니다.
@@ -29,9 +30,9 @@ APIM 중심안은 중앙 정책·거버넌스에, LiteLLM 중심안은 여러 �
 4. 같은 모델·버전의 후보를 먼저 사용하고, 승인한 경우에만 다음 모델 그룹으로 이동합니다.
 5. 스트림을 끊김 없이 전달하고 model 변경 여부를 응답 metadata와 감사 로그에 남깁니다.
 
-전역 진입점·지역별 Agent·APIM·공유 admission 저장소는 운영 참고 구성입니다.
-이 repo가 실제 제공하는 실행 범위는 Python client/router, 구성 예제, 테스트, 모델 리소스 Bicep입니다.
-Front Door와 production Agent hosting을 배포하지 않습니다.
+구성도는 운영 BP의 전체 구성 요소를 표현합니다.
+제공된 Python client/router·설정·모델 resource Bicep를 고객 플랫폼에 연결하고,
+Front Door·지역별 APIM·분산 admission 저장소·Agent hosting은 플랫폼 기준으로 구성합니다.
 
 ## Case A 동일 모델 우선
 
@@ -143,9 +144,10 @@ Python replica의 상태도 공유되지 않습니다.
 운영에서는 실제 quota scope에 맞는 공유 예산, 사용자별 공정성, bounded ingress queue를 구현하고,
 APIM과 SDK와 application이 각각 retry하여 호출 수가 곱해지지 않도록 소유 계층을 하나로 정합니다.
 
-## 합격 기준과 미구현 범위
+## 구현과 운영 검증 연결
 
-로컬 합격 기준은 동일 모델 불변식, 승인된 fallback, 시도 상한, 긴 cooldown 존중,
-terminal 오류 fail-fast, 헤더 선제 제한, half-open 복구, stream 이후 재생 금지입니다.
-실제 RTO, 성공률, TTFT 목표는 실환경 테스트에서 별도로 합의·측정합니다.
-분산 quota coordinator, gateway/Agent hosting, 실제 부하 생성, 모델 품질 평가 자동화는 미구현입니다.
+정책 검증은 동일 모델·버전 유지, 승인된 fallback, 시도 상한, cooldown 준수,
+terminal 오류 fail-fast, 헤더 선제 제한, half-open 복구, stream 이후 재생 금지를 확인합니다.
+비교 가능한 응답 연속성 지표는 [README의 적용 효과](../README.md#적용-효과와-참고-지표)에 정리했습니다.
+고객 환경에서는 같은 지표에 사용자 TTFT·목표 RTO·품질·비용을 추가하여 정상·장애·복구 구간을 측정합니다.
+여러 replica의 분산 quota coordinator와 Agent hosting·관측·품질 평가 파이프라인은 운영 플랫폼에 연결합니다.
