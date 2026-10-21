@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="460" viewBox="0 0 1200 460" role="img" aria-labelledby="title desc">
+  <title id="title">Strategy 1: policy and model-contract eligibility gates</title>
+  <desc id="desc">Classify the request before ranking endpoints. Data-processing, identity, network and safety policy must permit the target. Model version, API and capability contracts must also match. Denied or incompatible requests fail explicitly instead of bypassing policy through another model. These policy gates are an operating integration design, not a generic implemented filter.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0 0L8 3L0 6Z" fill="#365977"/></marker>
+    <style>text{font-family:Segoe UI,Arial,sans-serif;fill:#183047}.heading{font-size:25px;font-weight:700}.label{font-size:17px;font-weight:600}.note{font-size:14px}.line{fill:none;stroke:#365977;stroke-width:2;marker-end:url(#arrow)}</style>
+  </defs>
+  <rect width="1200" height="460" fill="#f4f8fc"/>
+  <text x="30" y="42" class="heading">1 | qualify safe, compatible candidates before latency ranking</text>
+  <text x="30" y="74" class="note">A fast endpoint is not eligible if its processing policy, access boundary or model contract is incompatible.</text>
+  <rect id="request" x="30" y="150" width="180" height="100" rx="12" fill="#fff" stroke="#7aa2bf"/>
+  <text data-box="request" x="120" y="182" text-anchor="middle" class="label">Agent request</text>
+  <text data-box="request" x="120" y="209" text-anchor="middle" class="note">tenant + workload</text>
+  <text data-box="request" x="120" y="234" text-anchor="middle" class="note">model + version</text>
+  <path d="M210 200H264" class="line" data-target="policy"/>
+  <rect id="policy" x="270" y="140" width="240" height="120" rx="12" fill="#fff0d8" stroke="#c9994c"/>
+  <text data-box="policy" x="390" y="175" text-anchor="middle" class="label">Policy eligibility</text>
+  <text data-box="policy" x="390" y="203" text-anchor="middle" class="note">data processing + safety</text>
+  <text data-box="policy" x="390" y="231" text-anchor="middle" class="note">identity + network access</text>
+  <path d="M510 200H564" class="line" data-target="contract"/>
+  <rect id="contract" x="570" y="140" width="260" height="120" rx="12" fill="#e5f0ff" stroke="#4384b9"/>
+  <text data-box="contract" x="700" y="175" text-anchor="middle" class="label">Model contract</text>
+  <text data-box="contract" x="700" y="203" text-anchor="middle" class="note">pinned version + capabilities</text>
+  <text data-box="contract" x="700" y="231" text-anchor="middle" class="note">context + API + output schema</text>
+  <path d="M830 200H884" class="line" data-target="eligible"/>
+  <rect id="eligible" x="890" y="140" width="280" height="120" rx="12" fill="#e3f3ed" stroke="#4d957a"/>
+  <text data-box="eligible" x="1030" y="175" text-anchor="middle" class="label">Eligible candidates</text>
+  <text data-box="eligible" x="1030" y="203" text-anchor="middle" class="note">approved model/version only</text>
+  <text data-box="eligible" x="1030" y="231" text-anchor="middle" class="note">then compare TTFT and headroom</text>
+  <path d="M390 260V298H520V329" class="line" data-target="reject"/>
+  <text x="420" y="283" class="note">policy denied</text>
+  <path d="M700 260V329" class="line" data-target="reject"/>
+  <text x="725" y="295" class="note">incompatible contract</text>
+  <rect id="reject" x="410" y="335" width="380" height="70" rx="12" fill="#fde9e9" stroke="#bd7777"/>
+  <text data-box="reject" x="600" y="364" text-anchor="middle" class="label">Reject explicitly; do not reroute</text>
+  <text data-box="reject" x="600" y="390" text-anchor="middle" class="note">Never bypass access or safety refusals</text>
+  <text x="30" y="444" class="note">Operating design: enforce policy in the platform; region preference alone is not a governance allowlist.</text>
+</svg>

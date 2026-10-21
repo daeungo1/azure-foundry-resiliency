@@ -59,7 +59,17 @@ def test_shared_assets_do_not_expose_deployment_geography() -> None:
 
 def test_svgs_are_accessible_static_and_self_contained() -> None:
     diagrams = list((ROOT / "docs" / "diagrams").glob("*.svg"))
-    assert len(diagrams) == 4
+    assert {path.name for path in diagrams} == {
+        "global-multi-subscription.svg",
+        "global-single-subscription.svg",
+        "mixed-model.svg",
+        "policy-gates.svg",
+        "quota-admission-workflow.svg",
+        "retry-recovery-workflow.svg",
+        "same-model.svg",
+        "ttft-profile-workflow.svg",
+        "ttft-routing-strategy.svg",
+    }
     for path in diagrams:
         root = ElementTree.parse(path).getroot()
         assert root.attrib["viewBox"]
@@ -125,7 +135,95 @@ def test_svg_arrows_have_single_paths_and_explicit_target_ports() -> None:
                 assert end_x == before_x and end_y < before_y
                 assert end_y == pytest.approx(y + height + 6)
                 assert x + 12 <= end_x <= x + width - 12
-    assert arrows == 16
+    assert arrows == 47
+
+
+def test_readme_embeds_a_workflow_in_each_numbered_strategy() -> None:
+    text = (ROOT / "README.md").read_text(encoding="utf-8")
+    sections = dict(re.findall(r"(?ms)^## ([1-6])\. [^\n]+\n(.*?)(?=^## |\Z)", text))
+    workflows = {
+        "1": "policy-gates.svg",
+        "2": "ttft-profile-workflow.svg",
+        "3": "quota-admission-workflow.svg",
+        "4": "same-model.svg",
+        "5": "mixed-model.svg",
+        "6": "retry-recovery-workflow.svg",
+    }
+    for number, workflow in workflows.items():
+        embedded = re.findall(r"!\[[^\]]+\]\(docs/diagrams/([^)]*)\)", sections[number])
+        assert workflow in embedded, f"Strategy {number} must show {workflow} inline"
+
+
+def test_readme_has_six_linked_strategies_and_matching_routing_diagram() -> None:
+    text = (ROOT / "README.md").read_text(encoding="utf-8")
+    summary_title = "## TL;DR: 핵심 방안 6가지"
+    assert summary_title in text
+    assert text.index(summary_title) < text.index("## 권장 BP 아키텍처")
+    summary = text.split(summary_title)[1].split("## 권장 BP 아키텍처")[0]
+    entries = re.findall(r"^\| ([1-6]) \| \[([^\]]+)\]\((#[^)]+)\) \|", summary, re.M)
+    headings = re.findall(r"^## ([1-6])\. (.+)$", text, re.M)
+    assert [int(number) for number, _, _ in entries] == list(range(1, 7))
+    assert [int(number) for number, _ in headings] == list(range(1, 7))
+    for (number, label, link), (heading_number, title) in zip(entries, headings, strict=True):
+        assert number == heading_number and label == title
+        slug = re.sub(r"[^\w\s-]", "", f"{number}. {title}".lower()).replace(" ", "-")
+        assert link == f"#{slug}"
+    diagram = "docs/diagrams/ttft-routing-strategy.svg"
+    assert f"]({diagram})" in text
+    assert text.index(f"]({diagram})") < text.index("## 1. ")
+    root = ElementTree.parse(ROOT / diagram).getroot()
+    assert {element.get("data-step") for element in root.iter() if element.get("data-step")} == {
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+    }
+
+
+def test_readme_before_after_ttft_table_matches_controlled_sse_evidence() -> None:
+    path = ROOT / "docs" / "results" / "ttft-comparison-sse.json"
+    assert path.exists(), "Persist the controlled first-text comparison before publishing the table"
+    report = json.loads(path.read_text(encoding="utf-8"))
+    assert report["passed"] and report["live_azure_calls"] == 0
+    assert report["timing_mode"] == "real_monotonic_clock"
+    labels = {
+        "healthy": "정상",
+        "slow_primary": "Primary 첫 텍스트 지연",
+        "subscription_429": "구독 단위 429",
+        "subscription_503": "구독 단위 503",
+        "same_model_429": "요청 모델 전체 429",
+    }
+    text = (ROOT / "README.md").read_text(encoding="utf-8")
+    assert "### 적용 전후 TTFT와 응답 성공률" in text
+    for row in report["summary"]:
+        line = next(
+            line for line in text.splitlines() if line.startswith(f"| {labels[row['scenario']]} |")
+        )
+        expected = []
+        for arm in ("before", "after"):
+            metrics = row[arm]
+            ttft = metrics["ttft_p95_ms"]
+            expected.append("미수신" if ttft is None else f"{ttft:.1f} ms")
+        for arm in ("before", "after"):
+            metrics = row[arm]
+            expected.append(
+                f"{metrics['successes']}/{metrics['requests']} ({metrics['success_rate']:.0%})"
+            )
+        assert [cell.strip() for cell in line.split("|")[2:6]] == expected
+        for arm in ("before", "after"):
+            samples = [
+                sample
+                for case in report["scenarios"]
+                if case["scenario"] == row["scenario"]
+                for sample in case[arm]["samples"]
+            ]
+            assert row[arm]["requests"] == len(samples)
+            assert row[arm]["successes"] == sum(sample["success"] for sample in samples)
+            ttfts = sorted(sample["first_token_ms"] for sample in samples if sample["success"])
+            expected_p95 = ttfts[(95 * len(ttfts) + 99) // 100 - 1] if ttfts else None
+            assert row[arm]["ttft_p95_ms"] == expected_p95
 
 
 def test_markdown_local_links_resolve() -> None:

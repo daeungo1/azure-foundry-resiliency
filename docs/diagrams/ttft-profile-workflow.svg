@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="530" viewBox="0 0 1280 530" role="img" aria-labelledby="title desc">
+  <title id="title">Strategy 2: measured Streaming TTFT profile and approved routing groups</title>
+  <desc id="desc">Collect comparable streaming first-text samples per ingress, workload and pinned model version. Check p95 and the fraction of requests responding within target, including failures. Only fresh sufficient observations may update an approved profile. Primary and Resilience keep the same model; other models require independent quality and safety approval. Automatic production group refresh is not implemented.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0 0L8 3L0 6Z" fill="#365977"/></marker>
+    <style>text{font-family:Segoe UI,Arial,sans-serif;fill:#183047}.heading{font-size:25px;font-weight:700}.label{font-size:17px;font-weight:600}.note{font-size:14px}.line{fill:none;stroke:#365977;stroke-width:2;marker-end:url(#arrow)}.wire{fill:none;stroke:#365977;stroke-width:2}</style>
+  </defs>
+  <rect width="1280" height="530" fill="#f4f8fc"/>
+  <text x="40" y="42" class="heading">2 | measure first text, approve a profile, then route by group</text>
+  <text x="40" y="74" class="note">Compare like-for-like requests, not region names. Keep each model/version and workload in its own cohort.</text>
+  <rect id="cohort" x="40" y="140" width="320" height="125" rx="12" fill="#fff" stroke="#7aa2bf"/>
+  <text data-box="cohort" x="200" y="178" text-anchor="middle" class="label">Comparable request cohort</text>
+  <text data-box="cohort" x="200" y="206" text-anchor="middle" class="note">ingress + task + model/version</text>
+  <text data-box="cohort" x="200" y="234" text-anchor="middle" class="note">input size + load + warm/cold</text>
+  <path d="M360 202H474" class="line" data-target="measure"/>
+  <rect id="measure" x="480" y="140" width="320" height="125" rx="12" fill="#e5f0ff" stroke="#4384b9"/>
+  <text data-box="measure" x="640" y="178" text-anchor="middle" class="label">Streaming measurement</text>
+  <text data-box="measure" x="640" y="206" text-anchor="middle" class="note">first non-empty text, not headers</text>
+  <text data-box="measure" x="640" y="234" text-anchor="middle" class="note">p95 + target-hit rate + failures</text>
+  <path d="M800 202H914" class="line" data-target="profile"/>
+  <rect id="profile" x="920" y="140" width="320" height="125" rx="12" fill="#fff0d8" stroke="#c9994c"/>
+  <text data-box="profile" x="1080" y="178" text-anchor="middle" class="label">Approve grouping profile</text>
+  <text data-box="profile" x="1080" y="206" text-anchor="middle" class="note">require fresh, sufficient samples</text>
+  <text data-box="profile" x="1080" y="234" text-anchor="middle" class="note">do not promote stale/sparse data</text>
+  <path d="M1080 265V310" class="wire"/>
+  <path d="M200 310H1080" class="wire"/>
+  <path d="M200 310V359" class="line" data-target="primary"/>
+  <path d="M640 310V359" class="line" data-target="resilience"/>
+  <path d="M1080 310V359" class="line" data-target="fallback"/>
+  <rect id="primary" x="40" y="365" width="320" height="100" rx="12" fill="#e3f3ed" stroke="#4d957a"/>
+  <text data-box="primary" x="200" y="397" text-anchor="middle" class="label">Primary</text>
+  <text data-box="primary" x="200" y="424" text-anchor="middle" class="note">same model, comparable p95</text>
+  <text data-box="primary" x="200" y="450" text-anchor="middle" class="note">balance headroom + in-flight</text>
+  <rect id="resilience" x="480" y="365" width="320" height="100" rx="12" fill="#e5f0ff" stroke="#4384b9"/>
+  <text data-box="resilience" x="640" y="397" text-anchor="middle" class="label">Resilience</text>
+  <text data-box="resilience" x="640" y="424" text-anchor="middle" class="note">same model, other healthy targets</text>
+  <text data-box="resilience" x="640" y="450" text-anchor="middle" class="note">must fit the remaining deadline</text>
+  <rect id="fallback" x="920" y="365" width="320" height="100" rx="12" fill="#fff0d8" stroke="#c9994c"/>
+  <text data-box="fallback" x="1080" y="397" text-anchor="middle" class="label">Fallback: separate approval</text>
+  <text data-box="fallback" x="1080" y="424" text-anchor="middle" class="note">other models need quality + safety</text>
+  <text data-box="fallback" x="1080" y="450" text-anchor="middle" class="note">allowlist + request opt-in</text>
+  <text x="40" y="505" class="note">Approve a static profile first. Automatic production TTFT group refresh is an additional integration.</text>
+</svg>

@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Strategy 6: bounded retry, first-text commitment and circuit recovery</title>
+  <desc id="desc">Check the total deadline and attempt cap before sending. A first text commits the stream and forbids automatic replay. Retry only transient failures before first text, honoring Retry-After and cooldown while trying an eligible candidate inside the remaining budget. Terminal authorization or safety failures and exhausted budgets stop explicitly. A recovered endpoint reenters through one half-open probe.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0 0L8 3L0 6Z" fill="#365977"/></marker>
+    <style>text{font-family:Segoe UI,Arial,sans-serif;fill:#183047}.heading{font-size:25px;font-weight:700}.label{font-size:17px;font-weight:600}.note{font-size:14px}.line{fill:none;stroke:#365977;stroke-width:2;marker-end:url(#arrow)}</style>
+  </defs>
+  <rect width="1280" height="720" fill="#f4f8fc"/>
+  <text x="40" y="42" class="heading">6 | retry before first text, recover gradually, never replay a committed stream</text>
+  <text x="40" y="74" class="note">All regions and models share one request deadline and attempt cap. Retry ownership belongs to one layer.</text>
+  <rect id="budget" x="40" y="140" width="260" height="110" rx="12" fill="#fff" stroke="#7aa2bf"/>
+  <text data-box="budget" x="170" y="172" text-anchor="middle" class="label">Check remaining budget</text>
+  <text data-box="budget" x="170" y="201" text-anchor="middle" class="note">total deadline + attempt cap</text>
+  <text data-box="budget" x="170" y="230" text-anchor="middle" class="note">remaining time before each send</text>
+  <path d="M300 195H374" class="line" data-target="attempt"/>
+  <rect id="attempt" x="380" y="140" width="260" height="110" rx="12" fill="#e5f0ff" stroke="#4384b9"/>
+  <text data-box="attempt" x="510" y="172" text-anchor="middle" class="label">Open one eligible backend</text>
+  <text data-box="attempt" x="510" y="201" text-anchor="middle" class="note">same model first; approved fallback</text>
+  <text data-box="attempt" x="510" y="230" text-anchor="middle" class="note">bounded first-text timeout</text>
+  <path d="M640 195H714" class="line" data-target="outcome"/>
+  <rect id="outcome" x="720" y="140" width="240" height="110" rx="12" fill="#fff0d8" stroke="#c9994c"/>
+  <text data-box="outcome" x="840" y="172" text-anchor="middle" class="label">Classify first outcome</text>
+  <text data-box="outcome" x="840" y="201" text-anchor="middle" class="note">first text / transient failure</text>
+  <text data-box="outcome" x="840" y="230" text-anchor="middle" class="note">or terminal policy/auth error</text>
+  <path d="M960 195H1034" class="line" data-target="committed"/>
+  <text x="1000" y="173" text-anchor="middle" class="note">first text</text>
+  <rect id="committed" x="1040" y="140" width="200" height="110" rx="12" fill="#e3f3ed" stroke="#4d957a"/>
+  <text data-box="committed" x="1140" y="172" text-anchor="middle" class="label">Stream committed</text>
+  <text data-box="committed" x="1140" y="201" text-anchor="middle" class="note">no automatic replay</text>
+  <text data-box="committed" x="1140" y="230" text-anchor="middle" class="note">surface late failures</text>
+  <path d="M840 250V324" class="line" data-target="cooldown"/>
+  <text x="870" y="295" class="note">transient, before first text</text>
+  <rect id="cooldown" x="700" y="330" width="280" height="120" rx="12" fill="#fff0d8" stroke="#c9994c"/>
+  <text data-box="cooldown" x="840" y="365" text-anchor="middle" class="label">Cooldown + circuit</text>
+  <text data-box="cooldown" x="840" y="394" text-anchor="middle" class="note">honor Retry-After / jitter</text>
+  <text data-box="cooldown" x="840" y="423" text-anchor="middle" class="note">try a healthy approved candidate</text>
+  <path d="M700 390H510V256" class="line" data-target="attempt"/>
+  <text x="535" y="310" class="note">budget remains</text>
+  <path d="M170 250V504" class="line" data-target="stop"/>
+  <text x="195" y="422" class="note">no time / attempt budget</text>
+  <path d="M840 140V105H20V560H34" class="line" data-target="stop"/>
+  <text x="50" y="127" class="note">terminal error / safety refusal</text>
+  <path d="M840 450V560H346" class="line" data-target="stop"/>
+  <text x="500" y="542" class="note">no candidate within deadline</text>
+  <rect id="stop" x="40" y="510" width="300" height="100" rx="12" fill="#fde9e9" stroke="#bd7777"/>
+  <text data-box="stop" x="190" y="545" text-anchor="middle" class="label">Explicit bounded failure</text>
+  <text data-box="stop" x="190" y="574" text-anchor="middle" class="note">no silent fallback or retry</text>
+  <text data-box="stop" x="190" y="598" text-anchor="middle" class="note">terminal auth / policy failures</text>
+  <rect id="recovery" x="420" y="600" width="820" height="65" rx="12" fill="#fff" stroke="#7aa2bf"/>
+  <text data-box="recovery" x="440" y="627" class="label">Recovery: one half-open probe, then gradual traffic</text>
+  <text data-box="recovery" x="440" y="653" class="note">Never shorten server cooldown; do not replay text or Agent tools after commitment.</text>
+  <text x="40" y="698" class="note">A timeout does not prove server execution stopped. Application tool side effects need separate idempotency.</text>
+</svg>

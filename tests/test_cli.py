@@ -24,6 +24,12 @@ def test_nearest_rank_percentile() -> None:
     assert percentile([3, 1, 2], 0.95) == 3
 
 
+def test_comparison_cli_rejects_zero_count(tmp_path: Path) -> None:
+    path = tmp_path / "comparison.json"
+    assert main(["compare", "--count", "0", "--output", str(path)]) == 2
+    assert not path.exists()
+
+
 def test_cli_accepts_region_aliases_and_neutral_expansion_flag(tmp_path: Path) -> None:
     from foundry_resiliency.cli import create_parser
 

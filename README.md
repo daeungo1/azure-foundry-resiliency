@@ -1,7 +1,7 @@
 ---
 title: Azure Foundry Global Standard Resiliency Architecture
 description: 여러 구독과 리전에 배포된 모델을 안정적으로 호출하기 위한 BP 아키텍처와 적용 지표
-ms.date: 2026-10-20
+ms.date: 2026-10-21
 ---
 
 ## BP 아키텍처 요약
@@ -11,12 +11,23 @@ Azure Foundry `GlobalStandard` PayGo 모델을 여러 구독·리전에 구성�
 Region01~RegionN의 글로벌 Agent가 한 배포의 throttling이나 장애 때문에 함께 중단되지 않도록,
 **선제적 요청 제한 → 동일 모델 전환 → 승인된 대체 모델 전환 → 점진적 복구**를 일관된 정책으로 적용합니다.
 
-* 사용자 인접 진입점과 지역별 gateway로 불필요한 네트워크 왕복을 줄입니다.
-* quota pool과 endpoint 장애 도메인을 구분하여 구독·리전 전환 대상을 정합니다.
-* 같은 모델·버전의 정상 후보를 먼저 사용하여 응답 품질과 API 계약을 유지합니다.
-* 업무 품질을 승인한 타 모델은 별도 fallback 경로로 관리합니다.
-* 요청 deadline, 재시도 상한과 circuit breaker로 장애 확산과 재호출 집중을 제한합니다.
-* 사용자 TTFT, 최종 성공률, 모델 변경과 비용을 함께 관측합니다.
+## TL;DR: 핵심 방안 6가지
+
+**안전한 후보만 남기고, 비슷하게 빠른 동일 모델에 분산한 뒤, 장애 시 제한된 시간 안에서 전환합니다.**
+각 방안을 클릭하면 같은 번호의 상세 설명으로 이동합니다.
+
+| 번호 | 핵심 방안 | 한 줄 실행 기준 | 기대 효과 |
+|------|-----------|-----------------|-----------|
+| 1 | [안전성 및 요청 분류](#1-안전성-및-요청-분류) | 데이터 정책·모델 계약·업무 유형으로 후보 제한 | 빠르지만 부적합한 endpoint 제외 |
+| 2 | [Streaming TTFT 그룹핑](#2-streaming-ttft-그룹핑) | 사용자·업무·모델별 실측 p95와 목표 내 응답률로 그룹 구성 | 거리 대신 체감 성능 기준으로 선택 |
+| 3 | [헤더 기반 선제적 요청 제한](#3-헤더-기반-선제적-요청-제한) | 잔여 요청·토큰 선예약, 동급 후보에 분산 | 429 발생 전 보호와 쏠림 완화 |
+| 4 | [동일 모델 및 구독 전환](#4-동일-모델-및-구독-전환) | 다른 정상 endpoint·승인 quota의 같은 모델·버전 사용 | 품질 변경 없이 응답 연속성 확보 |
+| 5 | [승인된 다른 모델로 fallback](#5-승인된-다른-모델로-fallback) | 품질·안전성 승인과 요청 opt-in을 모두 확인 | 모델 전체 장애의 영향 완화 |
+| 6 | [시간 예산과 재시도 및 복구](#6-시간-예산과-재시도-및-복구) | 전체 deadline·retry 상한·circuit, 첫 텍스트 후 replay 금지 | 재시도 증폭·중복 응답·복구 집중 방지 |
+
+바로 보기: [전후 TTFT·성공률 비교](#적용-전후-ttft와-응답-성공률) ·
+[운영 KPI](#고객-환경에서-관리할-운영-kpi) · [실행 방법](#구성과-확인-방법) ·
+[상세 가이드](#상세-가이드와-공식-근거)
 
 ## 권장 BP 아키텍처
 
@@ -41,31 +52,72 @@ Subscription01·02 각각에 Region01~RegionN의 모델 배포를 두고,
 지역 Scope인 경우에는 해당 지역 범위를 기준으로 예산을 관리합니다.
 [공식 quota Scope 가이드](https://learn.microsoft.com/azure/foundry/foundry-models/quotas-limits#check-quota-management-scope)를 적용 전에 확인합니다.
 
-## 안정적인 모델 호출 흐름
+## 6가지 방안의 호출 흐름
 
-1. 요청 모델·버전, 필요한 기능과 데이터 처리 허용 범위로 후보를 제한합니다.
-2. remaining/reset 헤더와 동시성 상태를 확인하고 요청·토큰 예산을 선예약합니다.
-3. 동일 모델 그룹에서 사용자 프로필의 선호 지역을 먼저 검토합니다.
-   같은 지역 선호도에서는 구독 우선순위와 in-flight 상태를 반영합니다.
-4. 선택한 endpoint가 429·일시 오류·timeout이면 cooldown을 적용하고 다른 정상 후보를 선택합니다.
-5. 동일 모델 후보를 사용할 수 없으면 allowlist와 요청 opt-in을 모두 만족하는 타 모델만 검토합니다.
-6. 스트림의 첫 텍스트를 전달한 뒤에는 자동 재생하지 않고, 복구한 endpoint에는 단일 probe로 재진입합니다.
+![6가지 BP와 TTFT 그룹 기반 모델 라우팅](docs/diagrams/ttft-routing-strategy.svg)
 
-| 상황 | 우선 대응 | 모델 품질 관리 |
-|------|-----------|----------------|
-| 특정 endpoint·리전의 일시 장애 | 다른 정상 endpoint의 동일 모델·버전 사용 | 기존 모델 유지 |
-| 한 구독의 모델 quota 압력 | 별도 예산이 있는 구독의 동일 모델 사용 | 기존 모델 유지 |
-| 요청 모델의 후보 전체가 사용 불가 | 승인된 모델 그룹으로 fallback | 업무별 품질·기능 평가와 요청 opt-in |
-| 모든 후보의 제한 또는 시간 예산 소진 | 명시적 실패 또는 승인된 비동기 업무 경로 | 무한 retry와 숨겨진 모델 변경 금지 |
+그림의 1~6은 요약 표와 아래 상세 설명의 번호입니다.
+1~3으로 후보를 준비하고, 4의 동일 모델 Primary·Resilience 다음에 5의 승인 fallback을 검토합니다.
+6의 시간 예산·안전성·복구 규칙은 모든 시도에 공통 적용합니다.
+실측 그룹은 운영 설계이며, 현재 Python router의 자동 TTFT 학습 기능을 뜻하지 않습니다.
 
-모델 전환 시에는 `requested_model`, `selected_model`, `selected_version`, `degraded`를 기록합니다.
-Agent의 대화 이력·검색 결과·tool 실행 결과는 application에서 관리하여 endpoint 변경과 분리합니다.
-외부 tool에는 별도의 중복 실행 방지와 idempotency 정책을 적용합니다.
+## 1. 안전성 및 요청 분류
 
-## 429를 줄이는 선제적 요청 제한
+**속도 순위를 정하기 전에 호출해도 되는 후보부터 확정합니다.**
 
-응답 헤더를 관측하고 **다음 요청을 보내기 전에** 전송 가능 여부를 판단합니다.
+![데이터 및 접근 정책과 모델 계약을 확인하는 후보 제한 흐름](docs/diagrams/policy-gates.svg)
+
+| 확인 항목 | 실행 기준 |
+|-----------|-----------|
+| 데이터·접근 정책 | 허용된 처리 범위, identity·네트워크와 content safety 조건 충족 |
+| 모델 계약 | 모델·고정 버전, context와 필요한 API·기능의 호환성 확인 |
+| 업무 분류 | 사용자 접점·짧은 대화/긴 추론·입력 길이·cache 조건 구분 |
+
+같은 모델·버전의 전환과 다른 모델로의 품질 변경을 분리합니다.
+안전성 거절을 다른 모델로 우회하거나, 빠른 endpoint를 쓰기 위해 데이터 처리 정책을 완화하지 않습니다.
+지역 선호도는 데이터 거버넌스 allowlist를 대신하지 않습니다.
+
+## 2. Streaming TTFT 그룹핑
+
+**리전 이름이 아니라 같은 조건에서 측정한 첫 유효 텍스트의 속도와 안정성으로 그룹을 구성합니다.**
+
+![Streaming 측정에서 승인된 TTFT profile과 호출 그룹으로 이어지는 흐름](docs/diagrams/ttft-profile-workflow.svg)
+
+| 호출 그룹 | 구성 기준 | 호출 전략 |
+|-----------|-----------|-----------|
+| Primary | 동일 모델·버전 중 업무별 p95 TTFT와 목표 내 응답률을 만족하는 정상 후보 | 유사 성능 후보에 quota headroom·동시성을 반영해 분산 |
+| Resilience | 다른 승인 endpoint의 동일 모델·버전, 가능하면 별도 승인 quota pool | 429·일시 장애 시 남은 시간 예산 내 전환 |
+| Approved fallback | 업무 품질·안전성·API 계약을 승인한 다른 모델 | 요청 opt-in과 남은 시간 예산을 모두 만족할 때만 전환 |
+
+* 사용자 접점 × 업무 × 모델·버전별로 측정하고, 입력 길이·부하·cache warm/cold를 구분합니다.
+* Global Standard의 리소스 리전은 실제 추론 위치를 고정하지 않습니다. 가까운 리전도 실측 후 순위를 확정합니다.
+* 가장 빠른 한 곳에 몰지 않고 동급 후보에 분산하며, 실패율·목표 내 응답률도 함께 확인합니다.
+* 표본이 부족하거나 오래된 후보는 검증된 빠른 그룹으로 승격하지 않습니다.
+* 구독은 quota·장애 분석 축이지 TTFT 등급이 아닙니다.
+
+사용자 인접 Agent/gateway, 연결·인증 token 재사용, 불필요한 SSE buffering 제거,
+prompt·RAG 관리와 지원되는 prompt caching으로 고정 오버헤드도 줄입니다.
+안전성 검사를 위한 전달 정책은 유지하고, 지원되지 않는 모델 옵션을 임의 적용하지 않습니다.
+
+`stream=True`의 첫 non-empty text delta를 기준으로 측정하며 HTTP 헤더·빈 이벤트는 TTFT로 계산하지 않습니다.
+시장별 실제 Agent 경로의 사용자 TTFT와 개별 backend TTFT를 구분합니다.
+Azure Monitor의 절대 지연 진단에는 `AzureOpenAITimeToResponse`를 사용하고,
+정규화 지표 `AzureOpenAINormalizedTTFTInMS`와 구분합니다.
+기존 장애 주입 SSE 결과는 호출 정책의 근거이고 실제 Azure 리전별 TTFT 순위의 근거는 아닙니다.
+
+> [!NOTE]
+> 현재 Python router는 정적 지역 선호도·priority·in-flight 순서를 사용합니다.
+> Streaming 계측·admission·장애 전환은 구현되어 있지만 TTFT 통계 기반 자동 그룹 갱신·성능 가중치와
+> 정책 도메인 필터는 추가 운영 구성입니다. 실측 후 승인한 순서를 설정에 반영하는 단계부터 시작합니다.
+
+그룹 편성·측정 절차와 공식 BP 적용 범위는 [TTFT 가이드](docs/latency.md)에 있습니다.
+
+## 3. 헤더 기반 선제적 요청 제한
+
+**응답 헤더를 관측하고 다음 요청을 보내기 전에 전송 가능 여부를 판단합니다.**
 429가 발생한 후의 retry와 별개로 적용하는 보호 계층입니다.
+
+![잔여 요청 및 토큰 선예약과 다른 quota pool 검토 흐름](docs/diagrams/quota-admission-workflow.svg)
 
 | 관측 정보 | 처리 정책 |
 |-----------|-----------|
@@ -83,7 +135,46 @@ Global Standard는 공유 용량 압력, burst와 token 추정 때문에 설정 
 따라서 헤더 기반 admission과 실제 오류 기반 전환을 함께 적용합니다.
 [공식 rate-limit response headers 가이드](https://learn.microsoft.com/azure/foundry/openai/how-to/quota?tabs=python#rate-limit-response-headers)를 참고하세요.
 
-## 재시도와 복구 정책
+## 4. 동일 모델 및 구독 전환
+
+**Primary에서 문제가 발생하면 품질을 바꾸기 전에 다른 정상 endpoint의 동일 모델·버전을 검토합니다.**
+
+![동일 모델의 정상 지역 후보로 전환하는 흐름](docs/diagrams/same-model.svg)
+
+| 상황 | 다음 후보 | 유지할 조건 |
+|------|-----------|-------------|
+| endpoint·리전의 429·일시 장애·첫 텍스트 timeout | 승인된 Resilience endpoint | 같은 모델·고정 버전, 남은 시간 예산 |
+| 한 구독의 모델 quota 압력 | 별도 예산이 있는 승인 구독의 동일 모델 | 실제 quota Scope·접근 권한 확인 |
+| 동일 모델 후보 전체가 사용 불가 | 5번 승인 fallback 또는 명시적 실패 | 무한 순회·숨겨진 모델 변경 금지 |
+
+구독·리전을 바꿔도 같은 quota pool이면 별도 예산이 생기지 않습니다.
+다른 구독 역시 글로벌 공급 용량까지 독립적이라고 가정하지 않습니다.
+현재 후보 순서는 모델 → 사용자 profile의 지역 선호도 → priority → in-flight·사용 순서이며,
+전환 전에 remaining/reset·cooldown·동시성을 다시 확인합니다.
+
+## 5. 승인된 다른 모델로 fallback
+
+**동일 모델로 처리할 수 없을 때만 업무 평가를 통과한 다른 모델을 명시적으로 사용합니다.**
+
+![Allowlist와 요청 opt-in을 확인하는 혼합 모델 fallback 흐름](docs/diagrams/mixed-model.svg)
+
+| 승인 조건 | 실행 기준 |
+|-----------|-----------|
+| 업무 품질·안전성·기능 | 언어·정확도·출력 schema·context·API 계약을 평가하고 전환 방향 승인 |
+| 호출 의도 | 설정 allowlist와 요청별 opt-in을 모두 충족 |
+| 시간·가시성 | 남은 deadline 내 호출, 선택 모델·버전과 품질 변경 여부 기록 |
+
+모델 네 개의 예제 순서는 품질이나 속도 순위가 아닙니다.
+`requested_model`, `selected_model`, `selected_version`, `degraded`로 변경을 노출합니다.
+Agent의 대화 이력·검색 결과·tool 실행 결과는 application에서 관리하여 endpoint 변경과 분리하고,
+외부 tool에는 별도의 중복 실행 방지와 idempotency 정책을 적용합니다.
+현재 adapter는 stateless text-only이며 Agent tool 자동 재생을 제공하지 않습니다.
+
+## 6. 시간 예산과 재시도 및 복구
+
+**후보 수가 늘어도 전체 시간·시도 예산은 늘리지 않고, 첫 텍스트 전달 후에는 자동 재호출하지 않습니다.**
+
+![남은 시간 확인부터 제한된 재시도와 stream 확정까지의 복구 흐름](docs/diagrams/retry-recovery-workflow.svg)
 
 * 429, 408, 500, 502, 503, 504 및 연결·timeout 오류를 일시 오류로 처리합니다.
 * 400, 401, 403, 404, 422, 501이나 안전성 거절은 다른 모델로 숨기지 않습니다.
@@ -107,22 +198,42 @@ Global Standard는 공유 용량 압력, burst와 token 추정 때문에 설정 
 
 후보 수를 늘려도 deadline과 시도 예산은 유지합니다.
 업무별 충분한 정상 후보를 앞쪽에 배치하고, 모든 후보를 순회하는 것 자체를 목표로 삼지 않습니다.
-
-## 글로벌 사용자 TTFT 관리
-
-1. 사용자 인접 Agent/gateway와 HTTP connection pool·인증 token 재사용으로 고정 오버헤드를 줄입니다.
-2. SSE 전달 경로의 proxy buffering과 idle timeout을 확인합니다.
-3. prompt·대화 이력·RAG 문서를 필요한 범위로 관리하고, 독립적인 검색·조회는 병렬화합니다.
-4. 지원되는 prompt caching과 업무별 모델 선택을 활용하되, 전환 시 cache locality와 품질도 확인합니다.
-5. 첫 텍스트 이전 전환에만 시간 예산을 부여하고 불필요한 hedging·중첩 retry를 피합니다.
-
-Global Standard의 리소스 리전은 실제 추론 수행 위치를 고정하지 않습니다.
-시장별 실제 Agent 경로에서 사용자 TTFT와 backend TTFT를 구분해 측정합니다.
-Azure Monitor의 절대 지연 진단에는 `AzureOpenAITimeToResponse`를 사용하고,
-정규화 지표 `AzureOpenAINormalizedTTFTInMS`와 구분합니다.
-자세한 설계는 [TTFT 가이드](docs/latency.md)에 있습니다.
+남은 예산으로 정상 후보에 도달할 수 없으면 명시적 실패 또는 승인된 비동기 처리 경로로 종료합니다.
 
 ## 적용 효과와 참고 지표
+
+### 적용 전후 TTFT와 응답 성공률
+
+**단일 endpoint 고정 호출과 BP 라우팅을 같은 입력·모델 버전·시간 예산으로 비교했습니다.**
+2026-10-21에 실제 OpenAI SDK와 지연을 통제한 모의 Streaming(SSE)으로 측정한 참고 결과입니다.
+아래 수치는 로컬 호스트의 실제 경과 시간이며 Azure 리전 성능이나 고객 운영 SLO 실측값은 아닙니다.
+
+| 시험 조건 | 적용 전 p95 TTFT | 적용 후 p95 TTFT | 적용 전 성공률 | 적용 후 성공률 | 관측한 변화 |
+|-----------|------------------|------------------|----------------|----------------|-------------|
+| 정상 | 196.8 ms | 116.9 ms | 80/80 (100%) | 80/80 (100%) | 양쪽 모두 응답 완료, 호스트 시간 변동 포함 |
+| Primary 첫 텍스트 지연 | 347.3 ms | 127.8 ms | 80/80 (100%) | 80/80 (100%) | 사전 계측한 빠른 동일 모델 profile 선택 |
+| 구독 단위 429 | 미수신 | 323.8 ms | 0/80 (0%) | 80/80 (100%) | 다른 구독의 동일 모델로 전환 |
+| 구독 단위 503 | 미수신 | 108.7 ms | 0/80 (0%) | 80/80 (100%) | 정상 구독의 동일 모델로 전환 |
+| 요청 모델 전체 429 | 미수신 | 402.1 ms | 0/80 (0%) | 80/80 (100%) | 승인된 다른 모델로 전환, degraded 기록 |
+
+* 적용 전은 Subscription01/Region01의 단일 endpoint·1회 시도·타 모델 전환 없음입니다.
+* 적용 후는 사전 계측한 지역 순서·두 구독·4개 지역·공유 router 상태·승인 fallback을 사용합니다.
+  자동 TTFT 제어기를 추가한 결과가 아니라 현재 router의 정적 profile과 전환 기능을 비교한 것입니다.
+* 네 모델 × 조건별 20회로 각 셀은 80개 요청입니다. 전후 합계 800개 비교 요청이며
+  별도의 warmup 80개·지역별 calibration 240개는 이 분모에서 제외했습니다.
+* `response.created`는 즉시 보내고 첫 텍스트만 정상 30ms·느린 Primary 250ms 지연을 주입했습니다.
+  SDK 준비 이후 실제 clock으로 측정하므로 표에는 SDK 처리·재시도·호스트 스케줄링 시간도 포함됩니다.
+* 성공률의 분모는 실패를 포함한 전체 요청이고, 성공은 `OK` 텍스트와 stream 완료까지 확인합니다.
+  TTFT는 성공 요청의 첫 텍스트 기준입니다. 실패한 요청의 TTFT를 0으로 넣지 않습니다.
+* 양쪽의 전체 deadline 8초·첫 텍스트 제한 2초는 같습니다. cold-start는 비교 범위 밖이며,
+  작은 표본의 p95·정상 행 차이를 실환경 개선율로 일반화하지 않습니다.
+
+조건·모델별 표본, 첫 전환을 포함한 시도 경로와 p50/p95/최댓값은
+[전후 비교 원시 결과](docs/results/ttft-comparison-sse.json)에 있습니다.
+측정 절차와 해석 범위는 [Streaming 비교 시험](docs/testing.md#전후-ttft와-성공률-비교-시험)을 참고하세요.
+업무별 적용 판단에는 아래 운영 KPI와 업무 품질·비용을 함께 사용합니다.
+
+### 장애 주입 정책별 응답 연속성
 
 다음은 동일 입력·네 모델·4개 지역·HTTP/SSE에서 수행한 **장애 주입 비교 결과**입니다.
 응답 연속성과 전환 정책의 적용 효과를 판단하는 참고 지표이며, 고객 환경의 운영 SLA 실측치와 구분합니다.
@@ -219,6 +330,8 @@ fallback까지 확인하려면 승인한 설정에 `--allow-model-fallback`을 �
 ### 정책 변경 전 반복 검증
 
 ```powershell
+uv run python -m foundry_resiliency compare --count 20 `
+  --output artifacts\ttft-comparison-sse.json
 uv run python -m foundry_resiliency simulate --subscriptions 2 --regions 4 --count 10 `
   --output artifacts\two-subscriptions-http.json
 uv run python -m foundry_resiliency simulate --subscriptions 2 --regions 4 --stream --count 10 `
@@ -229,6 +342,8 @@ uv run python -m pytest -q
 검증 도구의 N은 구독당 지역 수이며 `--regions 1`~`--regions 16`을 지원합니다.
 후보 수가 늘어도 요청별 시도 상한과 deadline은 유지합니다.
 정책·품질·시간 예산을 함께 검증하여 정상 후보까지 도달 가능한 경로를 구성합니다.
+`compare`는 실제 시간으로 지연시킨 로컬 SSE 전후 비교이고, `simulate`는 가상 정책 시계의 장애 행렬입니다.
+두 명령 모두 Azure 배포·실호출을 수행하지 않습니다.
 
 ## 검증 근거
 
@@ -248,12 +363,14 @@ uv run python -m pytest -q
 실제 Azure 호출은 이 참고 집계에 포함하지 않았습니다.
 추가 재검증에서도 비교 지표와 위 집계가 동일했으며,
 전체 회귀 테스트 92개와 N=8·16의 시도 상한·SVG 접점 검증을 함께 확인했습니다.
+2026-10-21에는 1~6번의 inline workflow SVG·전후 Streaming 비교를 포함한 전체 회귀 테스트 **102개**가 통과했습니다.
+전후 비교의 800개 요청은 위 기본 행렬 집계에 합산하지 않습니다.
 
 * [단일 구독 HTTP 결과](docs/results/resilience-http.json)
 * [단일 구독 SSE 결과](docs/results/resilience-sse.json)
 * [두 구독 HTTP 결과](docs/results/two-subscriptions-http.json)
 * [두 구독 SSE 결과](docs/results/two-subscriptions-sse.json)
-* [검증 환경·명령·92개 회귀 테스트 기록](docs/verification.json)
+* [검증 환경·명령·최신 102개 및 이전 회귀 기록](docs/verification.json)
 
 ## 상세 가이드와 공식 근거
 

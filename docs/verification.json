@@ -1,4 +1,90 @@
 {
+  "inline_workflows_update": {
+    "verified_on": "2026-10-21",
+    "inline_readme_strategies": 6,
+    "new_workflows": 4,
+    "reused_workflows": 2,
+    "static_svg_files": 9,
+    "static_directed_arrows": 47,
+    "browser_render": {
+      "browser": "Isolated installed Chrome, SVG-only loopback server",
+      "files": 9,
+      "fonts": ["Segoe UI", "Arial", "sans-serif"],
+      "font_combinations": 27,
+      "boxed_label_checks": 537,
+      "canvas_label_checks": 687,
+      "target_port_checks": 141,
+      "orthogonal_segment_checks": 237,
+      "arrowhead_checks": 141,
+      "violations": 0
+    },
+    "checks": {
+      "pytest": {
+        "command": ".\\.venv\\Scripts\\python.exe -m pytest -p anyio.pytest_plugin -q --tb=short",
+        "environment": {
+          "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+        },
+        "tests": 102,
+        "asset_tests": 15,
+        "failures": 0,
+        "status": "passed"
+      },
+      "ruff": "passed",
+      "format": "passed",
+      "mypy": "passed",
+      "wheel_build": "passed"
+    }
+  },
+  "readme_ttft_update": {
+    "verified_on": "2026-10-21",
+    "scope": "Six numbered README strategies, routing SVG and controlled delayed-SSE comparison",
+    "checks": {
+      "pytest": {
+        "command": ".\\.venv\\Scripts\\python.exe -m pytest -p anyio.pytest_plugin -q --tb=short",
+        "environment": {
+          "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+        },
+        "tests": 101,
+        "failures": 0,
+        "asset_tests": 14,
+        "status": "passed"
+      },
+      "ruff": "passed",
+      "format": "passed",
+      "mypy": {
+        "source_files": 12,
+        "status": "passed"
+      },
+      "wheel_build": "passed"
+    },
+    "controlled_sse_comparison": {
+      "source": "docs/results/ttft-comparison-sse.json",
+      "command": ".\\.venv\\Scripts\\python.exe -m foundry_resiliency compare --count 20 --output docs\\results\\ttft-comparison-sse.json",
+      "timing_mode": "real_monotonic_clock",
+      "logical_requests": 800,
+      "requests_per_arm_per_condition": 80,
+      "before_successes": 160,
+      "after_successes": 400,
+      "warmup_requests_excluded": 80,
+      "calibration_requests_excluded": 240,
+      "live_azure_calls": 0,
+      "interpretation": "Paired controlled SDK SSE reference, not Azure latency or customer SLA",
+      "passed": true
+    },
+    "svg": {
+      "static_files": 5,
+      "static_directed_arrows": 23,
+      "new_diagram": "docs/diagrams/ttft-routing-strategy.svg",
+      "fonts": ["Segoe UI", "Arial", "sans-serif"],
+      "boxed_label_checks": 102,
+      "canvas_label_checks": 135,
+      "target_port_checks": 21,
+      "orthogonal_segment_checks": 42,
+      "arrowhead_checks": 21,
+      "violations": 0,
+      "scope": "New diagram browser measurements; prior four SVGs unchanged"
+    }
+  },
   "verified_on": "2026-10-20",
   "verification_timezone": "Asia/Seoul",
   "scope": "single_subscription_and_virtual_two_subscription_reference",

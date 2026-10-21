@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1000" viewBox="0 0 1280 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Six BP controls for Streaming TTFT-aware resilient model routing</title>
+  <desc id="desc">Steps one to three filter policy-eligible requests, define measured Streaming TTFT cohorts and reserve shared quota budgets. Step four balances similar same-model Primary candidates and tries same-model Resilience endpoints on transient failures before first text. Step five requires explicit approval for other models. Step six applies deadlines, circuit recovery and no replay after first text to every attempt. Region aliases are illustrative, not measured latency ranks. Automatic TTFT grouping is an operating design, not an implemented feature of the current Python router.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0 0L8 3L0 6Z" fill="#365977"/></marker>
+    <style>
+      text{font-family:Segoe UI,Arial,sans-serif;fill:#183047}
+      .heading{font-size:25px;font-weight:700}.label{font-size:17px;font-weight:600}
+      .subheading{font-size:20px;font-weight:600}.note{font-size:14px}
+      .box{fill:#fff;stroke:#7aa2bf;stroke-width:1.5}
+      .line{fill:none;stroke:#365977;stroke-width:2;marker-end:url(#arrow)}
+      .wire{fill:none;stroke:#365977;stroke-width:2}
+    </style>
+  </defs>
+  <rect width="1280" height="1000" fill="#f4f8fc"/>
+  <text x="40" y="42" class="heading">6 BP CONTROLS | TTFT-aware resilient model routing</text>
+  <text x="40" y="72" class="note">Group by ingress, workload and model/version. Region aliases below are not measured latency rankings.</text>
+  <text x="40" y="108" class="note">1-3: prepare eligible candidates | 4-5: route within a bounded budget | 6: protect every attempt</text>
+
+  <rect id="safety-check" data-step="1" x="40" y="140" width="320" height="140" rx="12" class="box"/>
+  <text data-box="safety-check" x="200" y="176" text-anchor="middle" class="label">1. Safety + request contract</text>
+  <text data-box="safety-check" x="200" y="204" text-anchor="middle" class="note">Data policy / identity / safety</text>
+  <text data-box="safety-check" x="200" y="232" text-anchor="middle" class="note">Model version / API / task class</text>
+  <text data-box="safety-check" x="200" y="260" text-anchor="middle" class="note">Exclude policy-ineligible targets</text>
+  <path d="M360 210H474" class="line" data-target="ttft-cohort"/>
+
+  <rect id="ttft-cohort" data-step="2" x="480" y="140" width="320" height="140" rx="12" fill="#e5f0ff" stroke="#4384b9" stroke-width="1.5"/>
+  <text data-box="ttft-cohort" x="640" y="176" text-anchor="middle" class="label">2. Streaming TTFT cohorts</text>
+  <text data-box="ttft-cohort" x="640" y="204" text-anchor="middle" class="note">Ingress + workload + model/version</text>
+  <text data-box="ttft-cohort" x="640" y="232" text-anchor="middle" class="note">Streaming p95 + target-hit rate</text>
+  <text data-box="ttft-cohort" x="640" y="260" text-anchor="middle" class="note">Split input size, load, warm/cold</text>
+  <path d="M800 210H914" class="line" data-target="admission"/>
+
+  <rect id="admission" data-step="3" x="920" y="140" width="320" height="140" rx="12" class="box"/>
+  <text data-box="admission" x="1080" y="176" text-anchor="middle" class="label">3. Proactive admission</text>
+  <text data-box="admission" x="1080" y="204" text-anchor="middle" class="note">Reserve requests + tokens per pool</text>
+  <text data-box="admission" x="1080" y="232" text-anchor="middle" class="note">Check reset / cooldown / in-flight</text>
+  <text data-box="admission" x="1080" y="260" text-anchor="middle" class="note">Same pool is not extra quota</text>
+  <path d="M1080 280V330H200V404" class="line" data-target="primary-group"/>
+  <text x="640" y="365" text-anchor="middle" class="label">Choose one eligible endpoint per attempt; recheck admission on each transition</text>
+
+  <rect id="primary-group" data-step="4" x="40" y="410" width="320" height="190" rx="12" fill="#e3f3ed" stroke="#4d957a" stroke-width="2"/>
+  <text data-box="primary-group" x="200" y="447" text-anchor="middle" class="label">4. Primary | same model</text>
+  <text data-box="primary-group" x="200" y="477" text-anchor="middle" class="note">Same model + pinned version</text>
+  <text data-box="primary-group" x="200" y="506" text-anchor="middle" class="note">Similar measured p95 TTFT</text>
+  <text data-box="primary-group" x="200" y="536" text-anchor="middle" class="note">Headroom + in-flight balancing</text>
+  <text data-box="primary-group" x="200" y="570" text-anchor="middle" class="note">Region01 / Region03 candidates</text>
+  <text x="420" y="490" text-anchor="middle" class="note">429 / transient</text>
+  <text x="420" y="514" text-anchor="middle" class="note">before first text</text>
+  <path d="M360 540H474" class="line" data-target="resilience-group"/>
+
+  <rect id="resilience-group" data-step="4" x="480" y="410" width="320" height="190" rx="12" fill="#e5f0ff" stroke="#4384b9" stroke-width="2"/>
+  <text data-box="resilience-group" x="640" y="447" text-anchor="middle" class="label">4. Resilience | same model</text>
+  <text data-box="resilience-group" x="640" y="477" text-anchor="middle" class="note">Same model + pinned version</text>
+  <text data-box="resilience-group" x="640" y="506" text-anchor="middle" class="note">Other approved endpoints</text>
+  <text data-box="resilience-group" x="640" y="536" text-anchor="middle" class="note">Separate quota when available</text>
+  <text data-box="resilience-group" x="640" y="570" text-anchor="middle" class="note">Region02 / Region04 candidates</text>
+  <text x="860" y="490" text-anchor="middle" class="note">same-model</text>
+  <text x="860" y="514" text-anchor="middle" class="note">unavailable</text>
+  <path d="M800 540H914" class="line" data-target="approved-fallback"/>
+
+  <rect id="approved-fallback" data-step="5" x="920" y="410" width="320" height="190" rx="12" fill="#fff0d8" stroke="#c9994c" stroke-width="2"/>
+  <text data-box="approved-fallback" x="1080" y="447" text-anchor="middle" class="label">5. Approved model fallback</text>
+  <text data-box="approved-fallback" x="1080" y="477" text-anchor="middle" class="note">Allowlist + per-request opt-in</text>
+  <text data-box="approved-fallback" x="1080" y="506" text-anchor="middle" class="note">Quality + safety + API approval</text>
+  <text data-box="approved-fallback" x="1080" y="536" text-anchor="middle" class="note">Record selected model + degraded</text>
+  <text data-box="approved-fallback" x="1080" y="570" text-anchor="middle" class="note">Not a model speed ranking</text>
+
+  <path d="M200 600V650H640" class="wire"/>
+  <path d="M640 600V650" class="wire"/>
+  <path d="M1080 600V650H640" class="wire"/>
+  <path d="M640 650V694" class="line" data-target="committed-stream"/>
+  <text x="665" y="679" class="note">Any successful group</text>
+  <rect id="committed-stream" x="40" y="700" width="1200" height="80" rx="12" fill="#d8eee8" stroke="#518c79" stroke-width="1.5"/>
+  <text data-box="committed-stream" x="640" y="732" text-anchor="middle" class="subheading">First allowed text: commit the stream</text>
+  <text data-box="committed-stream" x="640" y="760" text-anchor="middle" class="note">No automatic region/model replay after first text. Surface disconnects; never bypass safety refusals.</text>
+
+  <rect id="retry-guardrails" data-step="6" x="40" y="820" width="800" height="100" rx="12" class="box"/>
+  <text data-box="retry-guardrails" x="64" y="853" class="subheading">6. Guardrails on every attempt</text>
+  <text data-box="retry-guardrails" x="64" y="881" class="note">One total deadline + retry owner | Retry-After + cooldown + circuit</text>
+  <text data-box="retry-guardrails" x="64" y="906" class="note">Single recovery probe; no replay after first text; never weaken data or safety policy.</text>
+  <path d="M840 875H914" class="line" data-target="bounded-failure"/>
+  <rect id="bounded-failure" x="920" y="850" width="320" height="70" rx="12" fill="#fde9e9" stroke="#bd7777" stroke-width="1.5"/>
+  <text data-box="bounded-failure" x="1080" y="879" text-anchor="middle" class="label">Stop: no time / no eligible target</text>
+  <text data-box="bounded-failure" x="1080" y="904" text-anchor="middle" class="note">Explicit failure, no hidden retry</text>
+
+  <text x="40" y="958" class="note">Global Standard regions do not guarantee inference location, TTFT or independent capacity.</text>
+  <text x="40" y="984" class="note">Operating BP: current Python routing uses static region preferences; automatic TTFT grouping is not implemented.</text>
+</svg>

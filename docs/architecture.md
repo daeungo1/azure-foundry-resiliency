@@ -1,7 +1,7 @@
 ---
 title: 글로벌 Agent의 다중 구독·멀티 리전 Resiliency BP
 description: 안정적인 모델 호출을 위한 quota·장애 도메인 분리, 라우팅과 운영 구성
-ms.date: 2026-10-19
+ms.date: 2026-10-21
 ---
 
 ## 설계 요약
@@ -26,13 +26,32 @@ Subscription01·02에 Region01~RegionN의 모델 pool을 두고, 사용자 인�
 
 1. Region01, Region02, Region03, Region04 사용자를 Front Door 등 전역 진입점에서 인접한 지역 Agent/gateway로 연결합니다.
 2. 각 지역에서 인증, tenant/사용자별 admission, 짧고 제한된 대기열을 적용합니다.
-3. 사용자 시장의 `region_preferences`와 측정된 TTFT를 기준으로 backend 후보를 선택합니다.
+3. 사용자 시장·업무별 Streaming TTFT를 측정하고, 승인한 후보 순서를 `region_preferences` 등에 반영합니다.
+   현재 router는 TTFT 통계로 순서를 자동 학습하지 않습니다.
 4. 같은 모델·버전의 후보를 먼저 사용하고, 승인한 경우에만 다음 모델 그룹으로 이동합니다.
 5. 스트림을 끊김 없이 전달하고 model 변경 여부를 응답 metadata와 감사 로그에 남깁니다.
 
 구성도는 운영 BP의 전체 구성 요소를 표현합니다.
 제공된 Python client/router·설정·모델 resource Bicep를 고객 플랫폼에 연결하고,
 Front Door·지역별 APIM·분산 admission 저장소·Agent hosting은 플랫폼 기준으로 구성합니다.
+
+## TTFT와 안정성을 함께 고려한 호출 그룹
+
+운영 권장안은 안전성 조건을 만족한 후보에 대해 Primary·Resilience·Approved fallback 그룹을 구성하는 방식입니다.
+그룹은 사용자 접점·업무·모델·버전·입력 조건별로 정하며, 리전이나 구독 전체를 하나의 성능 등급으로 묶지 않습니다.
+
+1. 데이터 처리 범위, content safety, identity·네트워크와 API 계약을 먼저 확인합니다.
+2. 같은 모델·버전 중 실측 TTFT와 목표 내 응답률을 만족하는 동급 후보들을 Primary에 둡니다.
+3. Primary 안에서도 공유 quota 예산을 선예약하고 endpoint 동시성을 제한하여 최저 지연 후보 쏠림을 막습니다.
+4. 429·일시 장애에는 다른 승인 endpoint의 동일 모델을 Resilience 후보로 검토합니다.
+   다른 리전이라도 같은 quota pool이 소진됐다면 별도 예산처럼 사용하지 않습니다.
+5. 승인된 타 모델은 별도 그룹으로 유지하고 요청 opt-in·남은 시간 예산을 확인합니다.
+6. 첫 텍스트 이후에는 자동 전환하지 않으며, 신규·복구 후보에는 제한된 probe와 점진적 재진입을 적용합니다.
+
+정적 지역 순서는 실측 전 초기안입니다.
+TTFT 그룹의 자동 갱신·backend별 성능 가중치·정책 도메인 필터는 현재 router의 기능이 아닌 운영 통합 설계입니다.
+현재의 모델 우선 순서와 다른 조기 fallback 정책을 도입하려면 별도 승인이 필요합니다.
+측정 단위·표본 신선도·시간 예산과 공식 사례의 적용 범위는 [Streaming TTFT BP](latency.md)에 정리했습니다.
 
 ## Case A 동일 모델 우선
 

@@ -15,20 +15,16 @@ from pathlib import Path
 import httpx
 from azure.core.exceptions import ClientAuthenticationError
 
+from .comparison import compare_streaming
 from .config import TARGET_MODELS, Backend, Settings, load_settings
 from .examples import example_settings
+from .metrics import percentile
 from .preflight import preflight
 from .router import Request, Router, RoutingExhausted
 from .simulation import simulate
 from .transport import BackendError, Reply, Transport, live_transport
 
 logger = logging.getLogger(__name__)
-
-
-def percentile(values: list[float], fraction: float) -> float:
-    if not values or not 0 < fraction <= 1:
-        raise ValueError("Percentile requires samples and a fraction in (0, 1]")
-    return sorted(values)[math.ceil(len(values) * fraction) - 1]
 
 
 class FaultTransport:
@@ -151,6 +147,12 @@ def create_parser() -> argparse.ArgumentParser:
     simulation.add_argument("--stream", action="store_true")
     simulation.add_argument("--subscriptions", type=int, choices=[1, 2], default=1)
     simulation.add_argument("--regions", type=int, default=4, help="Region01..N, from 1 to 16")
+    comparison = commands.add_parser(
+        "compare", help="Compare fixed endpoint vs BP routing with controlled delayed SSE"
+    )
+    comparison.add_argument(
+        "--count", type=int, default=20, help="Requests per model and condition"
+    )
     validate = commands.add_parser("validate-config")
     arm = commands.add_parser("preflight", help="Read-only existing ARM deployment checks")
     live = commands.add_parser("smoke", help="Small, explicitly confirmed billable inference")
@@ -164,7 +166,7 @@ def create_parser() -> argparse.ArgumentParser:
     live.add_argument("--allow-model-fallback", action="store_true")
     live.add_argument("--fault", choices=["none", "primary-429", "same-model-429"], default="none")
     live.add_argument("--ttft-budget-ms", type=float)
-    for command in (example, simulation, validate, arm, live):
+    for command in (example, simulation, comparison, validate, arm, live):
         command.add_argument("--output", type=Path, required=command is example)
     return parser
 
@@ -205,6 +207,10 @@ def main(argv: list[str] | None = None) -> int:
             )
             _write(report, args.output)
             return 0 if report["passed"] else 1
+        if args.command == "compare":
+            comparison_report = asyncio.run(compare_streaming(count=args.count))
+            _write(comparison_report, args.output)
+            return 0 if comparison_report["passed"] else 1
         config = load_settings(args.config)
         if args.command == "validate-config":
             _write(

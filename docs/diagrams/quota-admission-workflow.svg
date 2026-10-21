@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="590" viewBox="0 0 1280 590" role="img" aria-labelledby="title desc">
+  <title id="title">Strategy 3: proactive request and token admission per quota pool</title>
+  <desc id="desc">Observe remaining request and token headers on a response. Before the next request reserve one request plus estimated input and maximum output tokens atomically per actual quota pool. Recheck reset, cooldown and concurrency. If budget is unavailable, examine another eligible pool or wait within the deadline; otherwise fail explicitly. Changing region inside the same pool does not create quota.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0 0L8 3L0 6Z" fill="#365977"/></marker>
+    <style>text{font-family:Segoe UI,Arial,sans-serif;fill:#183047}.heading{font-size:25px;font-weight:700}.label{font-size:17px;font-weight:600}.note{font-size:14px}.line{fill:none;stroke:#365977;stroke-width:2;marker-end:url(#arrow)}</style>
+  </defs>
+  <rect width="1280" height="590" fill="#f4f8fc"/>
+  <text x="40" y="42" class="heading">3 | observe headers, reserve shared budgets, then send</text>
+  <text x="40" y="74" class="note">Admission protects the NEXT request. Pool identity follows actual quota Scope, not the number of resources.</text>
+  <rect id="observe" x="40" y="140" width="300" height="120" rx="12" fill="#e5f0ff" stroke="#4384b9"/>
+  <text data-box="observe" x="190" y="175" text-anchor="middle" class="label">Observe response headers</text>
+  <text data-box="observe" x="190" y="203" text-anchor="middle" class="note">remaining requests + tokens</text>
+  <text data-box="observe" x="190" y="231" text-anchor="middle" class="note">reset + Retry-After signals</text>
+  <path d="M340 200H444" class="line" data-target="reserve"/>
+  <rect id="reserve" x="450" y="140" width="340" height="120" rx="12" fill="#fff0d8" stroke="#c9994c"/>
+  <text data-box="reserve" x="620" y="175" text-anchor="middle" class="label">Atomic pool reservation</text>
+  <text data-box="reserve" x="620" y="203" text-anchor="middle" class="note">1 request + input estimate + output cap</text>
+  <text data-box="reserve" x="620" y="231" text-anchor="middle" class="note">check reset / cooldown / in-flight</text>
+  <path d="M790 200H894" class="line" data-target="send"/>
+  <rect id="send" x="900" y="140" width="340" height="120" rx="12" fill="#e3f3ed" stroke="#4d957a"/>
+  <text data-box="send" x="1070" y="175" text-anchor="middle" class="label">Send to one eligible backend</text>
+  <text data-box="send" x="1070" y="203" text-anchor="middle" class="note">reserve before concurrent sends</text>
+  <text data-box="send" x="1070" y="231" text-anchor="middle" class="note">do not replenish from stale headers</text>
+  <path d="M1240 200H1260V100H190V134" class="line" data-target="observe"/>
+  <text x="900" y="124" class="note">response headers update the next budget</text>
+  <path d="M620 260V324" class="line" data-target="wait"/>
+  <text x="650" y="305" class="note">insufficient headroom</text>
+  <rect id="wait" x="450" y="330" width="340" height="100" rx="12" fill="#fff0d8" stroke="#c9994c"/>
+  <text data-box="wait" x="620" y="362" text-anchor="middle" class="label">No budget / not ready</text>
+  <text data-box="wait" x="620" y="390" text-anchor="middle" class="note">another pool or bounded wait</text>
+  <text data-box="wait" x="620" y="415" text-anchor="middle" class="note">respect reset and server cooldown</text>
+  <path d="M450 372H346" class="line" data-target="other-pool"/>
+  <rect id="other-pool" x="40" y="330" width="300" height="100" rx="12" fill="#e5f0ff" stroke="#4384b9"/>
+  <text data-box="other-pool" x="190" y="362" text-anchor="middle" class="label">Other eligible quota pool</text>
+  <text data-box="other-pool" x="190" y="390" text-anchor="middle" class="note">same pool is not extra quota</text>
+  <text data-box="other-pool" x="190" y="415" text-anchor="middle" class="note">recheck admission before sending</text>
+  <path d="M620 430V474" class="line" data-target="stop"/>
+  <text x="650" y="463" class="note">no candidate / no time</text>
+  <rect id="stop" x="450" y="480" width="340" height="55" rx="12" fill="#fde9e9" stroke="#bd7777"/>
+  <text data-box="stop" x="620" y="513" text-anchor="middle" class="label">Deadline exhausted: fail explicitly</text>
+  <text x="40" y="570" class="note">Shared capacity may still return 429 below quota. Multiple replicas need a shared admission layer.</text>
+</svg>

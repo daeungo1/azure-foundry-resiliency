@@ -1,7 +1,7 @@
 ---
 title: 2026년 공식 근거와 참고 저장소 Top 3
 description: 조사 기준, GitHub 인기도와 유지보수 상태, 채택 및 제외 근거
-ms.date: 2026-10-16
+ms.date: 2026-10-21
 ---
 
 ## 선정 기준
@@ -77,3 +77,21 @@ Microsoft repo는 아니지만 stars가 많고 이 프로젝트의 Python 호출
 
 고객 메일의 “대개 수 시간”과 과거 타 고객의 “약 1시간”은 복구 SLA가 아닙니다.
 첫 토큰 지연 SLO나 복구 시간을 이 사례에서 도출하지 않습니다.
+
+## Streaming TTFT 그룹 설계의 추가 근거
+
+2026-10-21에 Microsoft Architecture Center, APIM 문서, AI-Gateway lab과 LiteLLM routing을 재확인했습니다.
+AI-Gateway의 HEAD는 위 고정 commit과 동일했습니다. 위 Top 3의 stars는 최초 조사 시점 값으로 유지합니다.
+
+| 참고 사례 | 확인한 내용 | 프로젝트 적용 |
+|-----------|-------------|---------------|
+| [Microsoft Architecture Center gateway 패턴](https://learn.microsoft.com/azure/architecture/ai-ml/guide/generative-ai-gateway-multiple-models) | 다중 구독·리전 backend, API 호환성, 보안 경계와 stateful session 고려 | 지역별 진입 경로와 안전성 조건을 먼저 정하고 모델 변경을 별도 관리 |
+| [AI-Gateway backend pool lab README](https://github.com/Azure-Samples/AI-Gateway/blob/1679e3137d2fe7592d2a668d77ff71550d35b69e/labs/backend-pool-load-balancing/README.MD) | priority 1 우선, priority 2 동급 분산의 PTU fallback 예시 | pool·전환 패턴만 참고하며 이번 Global Standard BP에 PTU는 도입하지 않음 |
+| [APIM backend 지원 기능](https://learn.microsoft.com/azure/api-management/backends) | weighted·priority pool, circuit·Retry-After, 상위 circuit 사용 불가 시 하위 그룹 진입 | TTFT 자동 학습이나 느린 응답만으로 하위 pool 진입을 보장한다고 설명하지 않음 |
+| [LiteLLM routing 전략](https://docs.litellm.ai/docs/routing) | weighted pick 기본 권장, 선택적 latency window·lowest latency buffer | 동급 후보 분산을 참고하되 자체 SSE 첫 텍스트 계측·quota 보호와 함께 평가 |
+
+안전성 조건으로 후보를 제한한 뒤 사용자·업무·모델별 실측 TTFT로 Primary와 Resilience를 구성하는 것은
+위 사례를 조합한 프로젝트의 권장 설계입니다.
+특정 리전 순위·p95 경계·관측 창·표본 수는 공식 공통 권장값으로 제시하지 않습니다.
+일반 response time 기반 router가 첫 유효 텍스트를 기준으로 측정한다고 가정하지 않습니다.
+실제 적용 절차와 현재 구현의 경계는 [TTFT BP](latency.md)에 있습니다.
