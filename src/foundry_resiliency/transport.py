@@ -58,6 +58,7 @@ async def _chunks(stream: AsyncStream[ResponseStreamEvent]) -> AsyncIterator[str
             elif event.type in {"response.failed", "response.incomplete", "error"}:
                 raise BackendError(400, {}, "stream_failed_or_incomplete")
         if not completed:
+            # Text alone is not success: EOF without response.completed is a broken stream.
             raise BackendError(0, {}, "stream_disconnected")
     except (httpx.TransportError, APIConnectionError) as error:
         raise BackendError(0, {}, "stream_connection_error") from error
@@ -81,6 +82,7 @@ class SDKTransport:
                     stream=True,
                     timeout=httpx.Timeout(
                         connect=timeout_seconds,
+                        # Router owns first-text and stream-lifetime limits, not socket read gaps.
                         read=None,
                         write=timeout_seconds,
                         pool=timeout_seconds,
@@ -90,6 +92,7 @@ class SDKTransport:
                 chunks = _chunks(stream)
                 opened = False
                 try:
+                    # Prime actual text so headers and response.created cannot satisfy TTFT.
                     first = await anext(chunks)
                     opened = True
                 except StopAsyncIteration as error:

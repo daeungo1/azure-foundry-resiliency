@@ -118,6 +118,7 @@ class Router:
         self.random_value = random_value
         self.states = {backend.id: State() for backend in settings.backends}
         pools: dict[str, tuple[Budget, Budget]] = {}
+        # Shared pool IDs alias the same budgets; endpoint circuit state remains independent.
         self.budgets = {
             backend.id: pools.setdefault(backend.quota_pool or backend.id, (Budget(), Budget()))
             for backend in settings.backends
@@ -134,6 +135,7 @@ class Router:
         if request.allow_model_fallback:
             models += self.settings.fallbacks.get(request.model, [])
         regions = request.preferred_regions
+        # Model rank comes first, so a preferred region cannot promote a fallback model.
         return sorted(
             (
                 backend
@@ -151,6 +153,7 @@ class Router:
         )
 
     async def _reserve(self, request: Request) -> tuple[Backend | None, bool, float]:
+        # Selection and debit are atomic within this router, not across process replicas.
         async with self.lock:
             now = self.now()
             waits: list[float] = []
@@ -169,6 +172,7 @@ class Router:
                     waits.append(ready_at - now)
                     continue
                 probe = state.open_until > 0
+                # An expired open circuit admits one probe, not a burst of recovery traffic.
                 if (
                     state.in_flight >= backend.max_in_flight
                     or state.probing
@@ -206,6 +210,7 @@ class Router:
                 reset = 60
             now = self.now()
             budget.expire(now)
+            # Late responses may lower a live budget, but cannot refund concurrent reservations.
             budget.remaining = (
                 remaining if budget.remaining is None else min(budget.remaining, remaining)
             )
@@ -284,6 +289,7 @@ class Router:
                 except BackendError as backend_error:
                     error = backend_error
                 else:
+                    # Synchronous SDK work can overrun the deadline before asyncio can cancel it.
                     if self.now() >= deadline:
                         if reply.close is not None:
                             await reply.close()
@@ -375,4 +381,5 @@ class Router:
                 if result.reply.close is not None:
                     await result.reply.close()
             finally:
+                # Hold capacity through consumption and release it even if stream close fails.
                 await self._release(backend, probe)

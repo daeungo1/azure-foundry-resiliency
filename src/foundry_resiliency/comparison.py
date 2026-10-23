@@ -199,6 +199,7 @@ async def controlled_transport(
                 http_client=httpx.AsyncClient(transport=mock(backend), trust_env=False),
             )
             clients[backend.id] = client
+            # Resolve the SDK's lazy Responses resource before measured requests begin.
             _ = client.responses
         yield SDKTransport(clients)
     finally:
@@ -252,6 +253,7 @@ async def _sample(
 
 
 def _metrics(samples: list[Sample]) -> Metrics:
+    # Exclude failures from TTFT, never from the success-rate denominator.
     ttfts = [
         sample["first_token_ms"]
         for sample in samples
@@ -348,11 +350,13 @@ async def _compare_case(
     )
     calibration = await _calibrate(config, transport, model, trace, backends)
     preferred = [item["region"] for item in calibration]
+    # Calibrate without faults, then freeze the static region profile for the routed arm.
     conditions.faults = True
     before_samples: list[Sample] = []
     after_samples: list[Sample] = []
     after_router = Router(config, transport, now=time.perf_counter)
     for index in range(count):
+        # Alternate order to reduce warm-cache and scheduler bias between the two arms.
         arms = ("before", "after") if index % 2 == 0 else ("after", "before")
         for arm in arms:
             request = Request(

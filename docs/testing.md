@@ -1,7 +1,7 @@
 ---
 title: 검증 범위와 재현 가능한 테스트
 description: 로컬 contract, HTTP 및 SSE chaos matrix와 Azure 실환경 결과의 구분
-ms.date: 2026-10-21
+ms.date: 2026-10-23
 ---
 
 ## 테스트 계층
@@ -19,6 +19,64 @@ ms.date: 2026-10-21
 기본 chaos matrix는 현재 사용자 범위인 단일 구독입니다.
 `simulate --subscriptions 2 --regions N`으로 가상 두 구독의 routing·quota pool 격리를 검증합니다.
 실제 cross-subscription quota나 capacity isolation을 검증하지 않습니다.
+
+## pytest 구성과 파일별 검증 범위
+
+[pyproject.toml](../pyproject.toml)의 `testpaths = ["tests"]`가 기본 수집 경로이고,
+`pythonpath = ["src"]`가 로컬 소스의 import 경로입니다.
+개발 의존성의 AnyIO plugin과 모듈별 `pytest.mark.anyio`가 비동기 테스트를 실행합니다.
+[conftest.py](../tests/conftest.py)는 backend를 `asyncio`로 고정하므로 Trio를 추가할 필요가 없습니다.
+별도의 live-test marker나 Azure 자격 증명 설정 없이 기본 회귀 테스트를 실행합니다.
+
+| 테스트 파일 | 검증 범위 |
+|-------------|-----------|
+| [test_config.py](../tests/test_config.py) | 안전한 endpoint 형식, 중복 ID, 모델 버전 고정, fallback allowlist, 유한한 deadline |
+| [test_headers.py](../tests/test_headers.py) | reset duration·Retry-After 파싱, 서버 대기시간 유지, 잘못된 헤더 경고 |
+| [test_router.py](../tests/test_router.py) | 동일 모델 우선, opt-in, quota 선예약·공유, circuit 복구, 전체 시도·시간 상한, 동시성·취소 |
+| [test_sdk.py](../tests/test_sdk.py) | 실제 SDK wire 요청, deployment name, SDK retry 비활성화, 첫 텍스트 TTFT, stream 중단·종료 시 해제 |
+| [test_harness.py](../tests/test_harness.py) | 예제 설정, 모의 ARM 문서의 preflight 검증, HTTP/SSE 장애 행렬, 가상 정책 시계 |
+| [test_subscriptions.py](../tests/test_subscriptions.py) | 구독별 quota pool과 지역 간 공유, N=1~16 구성 경계, 장애 행렬, 관련 CLI |
+| [test_comparison.py](../tests/test_comparison.py) | 통제된 SSE 지연 하한, 실측 profile 선택, 실패를 포함한 성공률 분모, 비교 입력 제한 |
+| [test_cli.py](../tests/test_cli.py) | 설정 생성·검증, 과금 승인 누락 차단, CLI 입력, nearest-rank percentile |
+| [test_assets.py](../tests/test_assets.py) | Markdown 로컬 링크, README 표와 저장 JSON 일치, inline workflow, SVG 접근성·화살표 포트 |
+
+테스트 데이터는 Script transport·fake clock 또는 `httpx.MockTransport`로 격리합니다.
+SDK integration은 SDK 자체를 mock하지 않고 실제 요청 직렬화와 SSE 파싱을 사용합니다.
+CLI 출력은 pytest의 `tmp_path`에 저장하고, 추론을 허용하지 않는 CLI 검사는 승인 누락을 확인합니다.
+ARM 문서 검증도 모의 문서를 사용하므로 기본 pytest는 실제 Azure GET을 수행하지 않습니다.
+
+```powershell
+uv sync
+uv run python -m pytest --collect-only -q
+uv run python -m pytest -q
+```
+
+라우팅·SDK 변경 시에는 두 파일을 한 번의 runner로 선택 실행할 수 있습니다.
+README·SVG·저장 결과 변경은 asset 테스트로 먼저 확인합니다.
+선택 실행은 전체 회귀 검증을 대신하지 않습니다.
+
+```powershell
+uv run python -m pytest tests\test_router.py tests\test_sdk.py -q
+uv run python -m pytest tests\test_assets.py -q
+```
+
+SDK 테스트의 단독 실행에는 아래 [cold-start 제한](#sdk-초기화와-cold-start-판정)을 함께 확인합니다.
+시간 초과 시 실패 로그와 실행 순서를 기록하고, 테스트 예산을 늘려 성공으로 처리하지 않습니다.
+
+### CI 검증과 수동 실환경 시험의 경계
+
+[ci.yml](../.github/workflows/ci.yml)은 push·pull request·수동 실행에서 다음 검사를 수행합니다.
+
+* Ubuntu·Windows × Python 3.11·3.12 모두에서 pytest, Ruff lint·format, strict mypy와 wheel build
+* Ubuntu/Python 3.11에서 단일·두 구독의 HTTP/SSE `simulate --count 10` 네 조합과 `compare --count 3`
+* 위 모의 JSON 결과를 `resilience-evidence` artifact로 업로드
+* Windows/Python 3.11에서 Bicep template과 예제 parameter compile, 실제 배포는 수행하지 않음
+
+pytest 통과 수와 장애 행렬의 논리 요청 수는 다른 단위입니다.
+예를 들어 하나의 pytest가 여러 모델·조건·요청의 행렬 전체를 확인합니다.
+또한 `passed=true`는 기대한 명시적 실패까지 포함한 정책 합격이며, 모든 요청 성공을 뜻하지 않습니다.
+`compare --count 3`은 CI용 축약 재현이고 README의 `--count 20` 참고 수치를 덮어쓰지 않습니다.
+실제 Azure 인증·ARM GET·과금 추론은 각각 `preflight`와 승인된 `smoke`로 별도 실행합니다.
 
 ## 전후 TTFT와 성공률 비교 시험
 

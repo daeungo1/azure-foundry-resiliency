@@ -1,7 +1,7 @@
 ---
 title: Azure Foundry Global Standard Resiliency Architecture
 description: 여러 구독과 리전에 배포된 모델을 안정적으로 호출하기 위한 BP 아키텍처와 적용 지표
-ms.date: 2026-10-21
+ms.date: 2026-10-23
 ---
 
 ## BP 아키텍처 요약
@@ -306,8 +306,34 @@ Tools·이미지·오디오·서버측 Agent conversation은 해당 기능의 �
 호출의 `deployment`에는 catalog ID가 아닌 고객의 Azure deployment name을 지정합니다.
 [공식 모델 가용성](https://learn.microsoft.com/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure-region-availability#global-standard)을 배포 전에 확인합니다.
 
+### 개발 환경과 기본 검증
+
+Python 3.11 이상과 [uv](https://docs.astral.sh/uv/getting-started/installation/)가 필요합니다.
+저장소 루트에서 실행하며, `uv sync`는 runtime 의존성과 pytest·AnyIO·Ruff·mypy를 포함한
+개발 의존성을 프로젝트 `.venv`에 설치합니다.
+[CI](.github/workflows/ci.yml)는 Ubuntu·Windows × Python 3.11·3.12의 네 조합을 검증합니다.
+다른 Python 버전은 최소 버전 조건을 만족하더라도 이 CI의 검증 범위는 아닙니다.
+
 ```powershell
 uv sync
+uv run python -m pytest -q
+uv run ruff check src tests
+uv run ruff format --check src tests
+uv run mypy src
+uv build --wheel
+```
+
+기본 pytest는 Azure 자격 증명·배포 없이 실행되며 과금 호출을 하지 않습니다.
+라우터 정책, 실제 SDK와 mock HTTP/SSE, 가상 구독 및 문서·원시 결과의 정합성을 함께 검사합니다.
+비동기 테스트는 AnyIO의 asyncio backend로 실행합니다.
+파일별 검증 범위·선택 실행·CI evidence 단계는
+[테스트 구성 안내](docs/testing.md#pytest-구성과-파일별-검증-범위)를 참고하세요.
+
+### 고객 설정과 승인된 실환경 확인
+
+먼저 placeholder 설정을 생성하고 형식을 검증합니다. 다음 두 명령은 Azure에 접속하지 않습니다.
+
+```powershell
 uv run python -m foundry_resiliency example --mode mixed --subscriptions 2 --regions 4 `
   --output configs\customer.local.json
 uv run python -m foundry_resiliency validate-config --config configs\customer.local.json
@@ -316,6 +342,11 @@ uv run python -m foundry_resiliency validate-config --config configs\customer.lo
 생성한 로컬 설정의 endpoint, resource ID, deployment와 `azure_location`을 고객 환경 값으로 바꿉니다.
 `region`은 Region01 같은 별칭으로 유지하며, 로컬 설정은 Git에서 제외됩니다.
 기존 배포의 SKU·모델·버전·지역을 사전 확인한 뒤 제한된 실제 호출을 실행합니다.
+
+> [!WARNING]
+> `preflight`는 실제 Azure 관리 API의 GET과 인증을 사용합니다.
+> `smoke --confirm-paid`는 실제 모델 추론을 수행하므로 비용이 발생할 수 있습니다.
+> 아래 명령은 기본 로컬 테스트나 CI에 포함되지 않습니다.
 
 ```powershell
 uv run python -m foundry_resiliency preflight --config configs\customer.local.json

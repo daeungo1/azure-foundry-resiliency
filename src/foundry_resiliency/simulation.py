@@ -207,6 +207,7 @@ async def mock_transport(
                     "x-ratelimit-reset-requests": "60",
                 }
             elif scenario == "subscription_token_headroom":
+                # The request reserves 8 input + 16 output tokens, so 23 blocks the whole pool.
                 headers = {
                     "x-ratelimit-remaining-tokens": "23",
                     "x-ratelimit-reset-tokens": "60",
@@ -282,6 +283,7 @@ async def _scenario(
             sleep=clock.sleep,
             random_value=lambda: 1,
         )
+        # Keep circuit/quota state across logical requests, but reset each request's attempt trace.
         for _ in range(count):
             trace_start = len(trace)
             sample = RequestSample(
@@ -362,6 +364,7 @@ async def _scenario(
         else (0 if expect_failure else count)
     )
     if mixed and scenario in {"same_model_429", "same_model_503", "fallback_model_429"}:
+        # A large topology may exhaust several requests' budgets before all bad endpoints cool.
         blocked = model_endpoints * (2 if scenario == "fallback_model_429" else 1)
         expected_successes = max(0, count - blocked // config.max_attempts)
     passed = (
