@@ -21,7 +21,7 @@ Microsoft가 특정 리전 순위, 그룹 경계 또는 네 모델의 TTFT 목�
 
 ![안전성부터 TTFT 그룹 및 복구까지 6가지 호출 방안](diagrams/ttft-routing-strategy.svg)
 
-그림의 1~6은 [README 요약 표와 번호별 실행 기준](../README.md#tldr-핵심-방안-6가지)에 대응합니다.
+그림의 1-6은 [README 요약 표와 번호별 실행 기준](../README.md#tldr-핵심-방안-6가지)에 대응합니다.
 Primary·Resilience의 지역 별칭은 그룹 구성 예시이며 실측 성능 순위가 아닙니다.
 주요 실행 기준과 [전후 TTFT·성공률 비교](../README.md#적용-전후-ttft와-응답-성공률)는 README에서 함께 볼 수 있습니다.
 새 `compare` 명령은 통제된 지연의 로컬 SSE 비교이며 실제 Azure endpoint 순위를 정하는 도구는 아닙니다.
@@ -64,7 +64,7 @@ Azure Monitor에서는 절대 TTFT에 가까운 `AzureOpenAITimeToResponse`를 �
 |---------|-------------|-----------|
 | 정책 도메인 | tenant, 허용 데이터 처리 범위, identity·네트워크, content safety | 속도와 무관하게 위반 후보 제외 |
 | 모델 계약 | 모델·고정 버전, context, API·출력 schema, 필요한 기능 | 동일 모델 전환과 타 모델 품질 변경을 분리 |
-| 사용자 접점 | Region01~RegionN의 실제 사용자·Agent/gateway 경로 | 개발자 PC의 시장 옵션 변경과 글로벌 측정 구분 |
+| 사용자 접점 | Region01-RegionN의 실제 사용자·Agent/gateway 경로 | 개발자 PC의 시장 옵션 변경과 글로벌 측정 구분 |
 | 업무 유형 | 짧은 대화, 긴 추론, RAG·tool 단계, 입력 token 구간 | 다른 정상 TTFT 분포를 한 순위에 섞지 않음 |
 | 실행 조건 | connection·prompt cache warm/cold, 동시성·시간대 | 실제 운영 부하와 cache locality 반영 |
 | 용량·장애 범위 | 실제 quota Scope·pool, 구독, endpoint circuit | 빠르지만 전송 예산이 없는 후보로의 집중 방지 |
@@ -88,7 +88,7 @@ Global Standard가 데이터 처리 제한에 맞지 않으면 endpoint의 리�
 동급의 정상 TTFT로 측정되면 두 endpoint를 Primary에 함께 둘 수 있습니다.
 Region02 사용자의 순위는 다를 수 있으므로 별도로 측정합니다.
 이는 그룹 편성 방법의 예이지 해당 리전의 실측 순위가 아닙니다.
-현재 공개 예제의 Region01~Region04 선호도도 실측 ranking이 아니며,
+현재 공개 예제의 Region01-Region04 선호도도 실측 ranking이 아니며,
 `--include-expansion`으로 추가하는 Region05 역시 편입 전 검증합니다.
 
 같은 quota pool의 잔여 예산이 없으면 같은 그룹의 다른 리전도 그 예산을 재사용할 수 없습니다.
@@ -176,7 +176,7 @@ Resilience나 fallback까지 필요한 시간을 남기지 못하면 모든 후�
 
 ## 실제 측정 절차
 
-1. Region01~Region04의 실제 Agent hosting 위치와 사용자 접점에 probe를 둡니다.
+1. Region01-Region04의 실제 Agent hosting 위치와 사용자 접점에 probe를 둡니다.
    개발자 PC 한 대의 `--market` 변경은 국가별 측정이 아닙니다.
 2. 동일 prompt 길이, output 예산, 모델·버전과 동시성으로 비교합니다.
    cold-start, warm connection, prompt-cache warm/cold를 나눕니다.

@@ -35,7 +35,7 @@ ms.date: 2026-10-23
 | [test_router.py](../tests/test_router.py) | 동일 모델 우선, opt-in, quota 선예약·공유, circuit 복구, 전체 시도·시간 상한, 동시성·취소 |
 | [test_sdk.py](../tests/test_sdk.py) | 실제 SDK wire 요청, deployment name, SDK retry 비활성화, 첫 텍스트 TTFT, stream 중단·종료 시 해제 |
 | [test_harness.py](../tests/test_harness.py) | 예제 설정, 모의 ARM 문서의 preflight 검증, HTTP/SSE 장애 행렬, 가상 정책 시계 |
-| [test_subscriptions.py](../tests/test_subscriptions.py) | 구독별 quota pool과 지역 간 공유, N=1~16 구성 경계, 장애 행렬, 관련 CLI |
+| [test_subscriptions.py](../tests/test_subscriptions.py) | 구독별 quota pool과 지역 간 공유, N=1-16 구성 경계, 장애 행렬, 관련 CLI |
 | [test_comparison.py](../tests/test_comparison.py) | 통제된 SSE 지연 하한, 실측 profile 선택, 실패를 포함한 성공률 분모, 비교 입력 제한 |
 | [test_cli.py](../tests/test_cli.py) | 설정 생성·검증, 과금 승인 누락 차단, CLI 입력, nearest-rank percentile |
 | [test_assets.py](../tests/test_assets.py) | Markdown 로컬 링크, README 표와 저장 JSON 일치, inline workflow, SVG 접근성·화살표 포트 |
@@ -168,7 +168,7 @@ uv run python -m foundry_resiliency simulate --subscriptions 2 --regions 4 --str
   --output artifacts\two-subscriptions-sse.json
 ```
 
-N은 각 구독에 배치한 지역 개수이며, 1~16 범위입니다.
+N은 각 구독에 배치한 지역 개수이며, 1-16 범위입니다.
 N=4 테스트는 32개 backend와 subscription/model/version 기준 8개 quota pool을 사용합니다.
 두 protocol 합계 2,240개 요청에서 1,680개 성공, 560개 기대된 실패를 관측했습니다.
 구독 단위 429/503/요청·토큰 headroom의 네 조건에서는 640/640 성공,
@@ -196,7 +196,7 @@ N=8·16 보조 검증에서도 20회 시도 상한과 기록된 연속 요청 �
 각각 80개 조건/800개 요청에서 484개 성공, 316개 기대된 실패를 관측했습니다.
 README의 집계 표와 저장된 JSON이 일치하는지 회귀 테스트로 확인합니다.
 다시 실행한 결과나 실환경 상세 JSON은 `artifacts`에 저장하고 고객 데이터나 키를 넣지 않습니다.
-공유 결과는 실제 endpoint·국가·Azure location 없이 Region01~Region04만 포함합니다.
+공유 결과는 실제 endpoint·국가·Azure location 없이 Region01-Region04만 포함합니다.
 실험 정책은 결과의 `policy`에 포함되며, 60초 backoff와 고정 jitter 샘플로 반복 호출 수를 일정하게 합니다.
 실험은 15초 deadline·10초 attempt/첫 텍스트 제한을 사용합니다.
 `timing_mode=virtual_policy_clock`으로 정책 시계를 분리하여 SDK 초기화·호스트 스케줄링 지연이
@@ -248,7 +248,7 @@ Segoe UI, Arial, sans-serif 각각에서 `document.fonts.ready`를 기다린 후
 아홉 SVG의 47개 화살표 target 간격은 SVG 좌표 기준 6으로 통일했으며,
 이 경로·target·간격은 pytest 회귀 테스트로도 확인합니다.
 README의 TL;DR 6개 링크가 같은 번호의 상세 소제목으로 이어지는지,
-호출 전략 SVG에도 1~6의 방안이 모두 포함되는지 검사합니다.
+호출 전략 SVG에도 1-6의 방안이 모두 포함되는지 검사합니다.
 
 `smoke`는 `--confirm-paid` 없이는 호출하지 않습니다.
 실제 endpoint가 없다면 live test는 `not_run`으로 남깁니다.
@@ -319,7 +319,7 @@ warm 테스트 결과만으로 cold TTFT를 설명하거나 production deadline�
 
 ## 번호별 workflow 배치와 게시 검증
 
-README 1~6번에 각 방안의 workflow를 inline 이미지로 배치했습니다.
+README 1-6번에 각 방안의 workflow를 inline 이미지로 배치했습니다.
 4·5번은 기존 동일 모델·혼합 모델 SVG를 재사용하고,
 1·2·3·6번은 정책 필터·TTFT profile·quota admission·재시도/복구 SVG를 추가했습니다.
 전체 SVG는 9개이며 47개 화살표의 연결 대상과 6단위 포트 간격을 검사합니다.

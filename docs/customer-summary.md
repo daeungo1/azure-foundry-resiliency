@@ -10,7 +10,7 @@ Global Standard(PayGo)를 사용하는 글로벌 Agent에 대해 다중 구독·
 핵심은 quota와 endpoint 장애 도메인을 구분하고,
 정상적인 동일 모델 후보를 우선 사용하면서 승인된 대체 모델까지 전환 경로를 확보하는 것입니다.
 
-Region01~RegionN의 사용자 인접 gateway에서 요청을 처리하고,
+Region01-RegionN의 사용자 인접 gateway에서 요청을 처리하고,
 구독별 quota 예산·endpoint별 circuit·모델별 품질 승인을 공통 정책으로 관리합니다.
 응답 모델 변경 여부를 명확히 기록하여 서비스 연속성과 업무 품질을 함께 관리합니다.
 [BP 구성도와 호출 흐름](../README.md#권장-bp-아키텍처)을 기준으로 고객 환경에 적용합니다.

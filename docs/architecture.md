@@ -19,7 +19,7 @@ LiteLLM 등 별도 router를 선택하는 경우에도 retry와 quota 예산의 
 
 ![권장 다중 구독·멀티 리전 BP](diagrams/global-multi-subscription.svg)
 
-Subscription01·02에 Region01~RegionN의 모델 pool을 두고, 사용자 인접 진입점에서 정상 후보를 선택합니다.
+Subscription01·02에 Region01-RegionN의 모델 pool을 두고, 사용자 인접 진입점에서 정상 후보를 선택합니다.
 구독별 quota 할당과 endpoint별 circuit 상태를 따로 관리합니다.
 처음에는 [단일 구독 구성](diagrams/global-single-subscription.svg)에서 같은 정책을 적용하고,
 별도 승인 quota가 준비되면 모델·API 계약을 유지하면서 후보 pool을 확장할 수 있습니다.

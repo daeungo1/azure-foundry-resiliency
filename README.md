@@ -8,7 +8,7 @@ ms.date: 2026-10-23
 
 Azure Foundry `GlobalStandard` PayGo 모델을 여러 구독·리전에 구성하고,
 요청 예산과 endpoint 상태를 기준으로 정상 후보를 선택하는 Best Practice(BP)입니다.
-Region01~RegionN의 글로벌 Agent가 한 배포의 throttling이나 장애 때문에 함께 중단되지 않도록,
+Region01-RegionN의 글로벌 Agent가 한 배포의 throttling이나 장애 때문에 함께 중단되지 않도록,
 **선제적 요청 제한 → 동일 모델 전환 → 승인된 대체 모델 전환 → 점진적 복구**를 일관된 정책으로 적용합니다.
 
 ## TL;DR: 핵심 방안 6가지
@@ -33,7 +33,7 @@ Region01~RegionN의 글로벌 Agent가 한 배포의 throttling이나 장애 때
 
 ![다중 구독·멀티 리전 모델 호출 BP](docs/diagrams/global-multi-subscription.svg)
 
-Subscription01·02 각각에 Region01~RegionN의 모델 배포를 두고,
+Subscription01·02 각각에 Region01-RegionN의 모델 배포를 두고,
 지역별 gateway 또는 application router가 공통 정책으로 호출 대상을 선택합니다.
 정책은 중앙에서 관리하되 요청 처리는 지역별로 분산하여 중앙 gateway 한 곳으로의 왕복을 줄입니다.
 
@@ -56,8 +56,8 @@ Subscription01·02 각각에 Region01~RegionN의 모델 배포를 두고,
 
 ![6가지 BP와 TTFT 그룹 기반 모델 라우팅](docs/diagrams/ttft-routing-strategy.svg)
 
-그림의 1~6은 요약 표와 아래 상세 설명의 번호입니다.
-1~3으로 후보를 준비하고, 4의 동일 모델 Primary·Resilience 다음에 5의 승인 fallback을 검토합니다.
+그림의 1-6은 요약 표와 아래 상세 설명의 번호입니다.
+1-3으로 후보를 준비하고, 4의 동일 모델 Primary·Resilience 다음에 5의 승인 fallback을 검토합니다.
 6의 시간 예산·안전성·복구 규칙은 모든 시도에 공통 적용합니다.
 실측 그룹은 운영 설계이며, 현재 Python router의 자동 TTFT 학습 기능을 뜻하지 않습니다.
 
@@ -291,7 +291,7 @@ APIM의 circuit/load-balancing 상태는 gateway instance 간 완전 동기화�
 | 제공 항목 | 활용 방법 |
 |-----------|-----------|
 | [Python router](src/foundry_resiliency/router.py) | 헤더 기반 admission, circuit, 동일/혼합 모델 전환 정책 확인 |
-| [설정 예제](configs/) | 단일·두 구독 및 Region01~RegionN 후보 구성 |
+| [설정 예제](configs/) | 단일·두 구독 및 Region01-RegionN 후보 구성 |
 | [Bicep](infra/main.bicep) | 지역별 모델 resource·Global Standard 배포 구성 |
 | [테스트와 원시 결과](docs/testing.md) | 변경한 정책의 연속성·실패·복구 동작 재현 |
 
@@ -370,7 +370,7 @@ uv run python -m foundry_resiliency simulate --subscriptions 2 --regions 4 --str
 uv run python -m pytest -q
 ```
 
-검증 도구의 N은 구독당 지역 수이며 `--regions 1`~`--regions 16`을 지원합니다.
+검증 도구의 N은 구독당 지역 수이며 `--regions 1`-`--regions 16`을 지원합니다.
 후보 수가 늘어도 요청별 시도 상한과 deadline은 유지합니다.
 정책·품질·시간 예산을 함께 검증하여 정상 후보까지 도달 가능한 경로를 구성합니다.
 `compare`는 실제 시간으로 지연시킨 로컬 SSE 전후 비교이고, `simulate`는 가상 정책 시계의 장애 행렬입니다.
@@ -394,7 +394,7 @@ uv run python -m pytest -q
 실제 Azure 호출은 이 참고 집계에 포함하지 않았습니다.
 추가 재검증에서도 비교 지표와 위 집계가 동일했으며,
 전체 회귀 테스트 92개와 N=8·16의 시도 상한·SVG 접점 검증을 함께 확인했습니다.
-2026-10-21에는 1~6번의 inline workflow SVG·전후 Streaming 비교를 포함한 전체 회귀 테스트 **102개**가 통과했습니다.
+2026-10-21에는 1-6번의 inline workflow SVG·전후 Streaming 비교를 포함한 전체 회귀 테스트 **102개**가 통과했습니다.
 전후 비교의 800개 요청은 위 기본 행렬 집계에 합산하지 않습니다.
 
 * [단일 구독 HTTP 결과](docs/results/resilience-http.json)
